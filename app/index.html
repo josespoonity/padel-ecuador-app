@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Padel Ecuador · Club de Puntos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pe-blue:#1581C5;
+  --pe-blue-dark:#0E6BA6;
+  --pe-blue-deep:#0A5586;
+  --pe-yellow:#FFDE17;
+  --pe-yellow-dark:#F2C800;
+  --pe-black:#17181A;
+  --pe-ink:#23303B;
+  --pe-grey:#6B7A87;
+  --pe-mist:#EDF5FB;
+  --pe-white:#FFFFFF;
+  --radius-l:26px;
+  --radius-m:18px;
+  --radius-s:12px;
+  --shadow-card:0 8px 28px rgba(14,107,166,.12);
+  --shadow-pop:0 14px 40px rgba(10,85,134,.22);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Poppins',sans-serif;color:var(--pe-ink);
+  background:var(--pe-mist);
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input{font-family:inherit}
+
+/* ============ Brand pattern ============ */
+.pattern-blue{
+  background:linear-gradient(135deg,#1581C5,#0E6BA6 60%,#0A5586);
+  position:relative;
+}
+.pattern-blue::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("assets/pe-pattern.png");
+  background-size:200px 267px;background-repeat:repeat;
+  opacity:.22;pointer-events:none;
+}
+
+/* ============ Wordmark ============ */
+.wordmark{font-family:'Fredoka',sans-serif;font-weight:700;line-height:.86;letter-spacing:-.5px;text-transform:uppercase;display:inline-block;text-align:left}
+.wordmark .w1{display:block;color:var(--pe-white)}
+.wordmark .w2{display:block;color:var(--pe-yellow)}
+.wordmark.on-light .w1{color:var(--pe-blue)}
+.wordmark.on-light .w2{color:var(--pe-yellow-dark)}
+.script{font-family:'Caveat',cursive;font-weight:700}
+
+/* ============ Auth shell ============ */
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+/* Stage azul con patrón de marca */
+.auth-shell{
+  min-height:100vh;display:flex;flex-direction:column;align-items:stretch;
+  justify-content:flex-start;position:relative;overflow:hidden;box-sizing:border-box;
+  background:radial-gradient(130% 120% at 82% -10%,#1581C5 0%,#0E6BA6 46%,#08456c 100%);
+}
+.auth-shell::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("assets/pe-pattern.png");
+  background-size:200px 267px;background-repeat:repeat;
+  opacity:.13;pointer-events:none;z-index:0;
+}
+/* Tarjeta blanca flotante — mobile: ancho completo, radio solo en base */
+.auth-card-wrap{
+  width:100%;background:#fff;
+  border-radius:0 0 30px 30px;
+  overflow:hidden;position:relative;z-index:1;align-self:flex-start;
+}
+.auth-hero{padding:44px 28px 36px;position:relative;overflow:hidden}
+.auth-hero .wordmark{font-size:44px}
+.auth-hero .tagline{margin-top:14px;color:#fff}
+.auth-hero .tagline .script{font-size:30px;color:var(--pe-yellow);display:block;line-height:1;margin-top:2px;transform:rotate(-3deg);transform-origin:left}
+.auth-hero .tagline small{font-family:'Fredoka';font-weight:600;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;opacity:.92}
+.auth-card{
+  background:#fff;padding:32px 26px 48px;position:relative;z-index:2;
+}
+.auth-card h2{font-family:'Fredoka';font-weight:600;font-size:26px;color:var(--pe-ink)}
+.auth-card .sub{color:var(--pe-grey);font-size:14px;margin:6px 0 22px}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--pe-ink)}
+.field input{
+  width:100%;padding:14px 16px;border-radius:var(--radius-s);
+  border:2px solid #DCE7EF;background:#FAFCFE;font-size:15px;outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.field input:focus{border-color:var(--pe-blue);box-shadow:0 0 0 4px rgba(21,129,197,.12)}
+.field input.err-input{border-color:#E5484D}
+.err{color:#E5484D;font-size:12.5px;margin-top:5px;display:none}
+.hint{color:var(--pe-grey);font-size:12px;margin-top:5px}
+
+.btn{
+  width:100%;padding:16px;border-radius:16px;font-weight:700;font-size:16px;
+  font-family:'Fredoka';letter-spacing:.4px;transition:transform .12s, box-shadow .2s, filter .2s;
+}
+.btn:active{transform:scale(.97)}
+.btn-yellow{background:var(--pe-yellow);color:var(--pe-black);box-shadow:0 8px 22px rgba(242,200,0,.40)}
+.btn-yellow:hover{filter:brightness(1.04)}
+.btn-blue{background:var(--pe-blue);color:#fff;box-shadow:0 8px 22px rgba(21,129,197,.35)}
+.btn-ghost{background:transparent;color:var(--pe-blue);font-weight:600;font-family:'Poppins';font-size:14px;padding:10px}
+.link{color:var(--pe-blue);font-weight:600;font-size:14px;background:none;border:none}
+.center{text-align:center}
+.mt8{margin-top:8px}.mt16{margin-top:16px}.mt24{margin-top:24px}
+
+/* Onboarding */
+.onb-shell{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;background:var(--pe-mist)}
+.onb-card{width:100%;max-width:520px;min-height:100vh;background:#fff;display:flex;flex-direction:column;padding:0 28px 36px;box-sizing:border-box}
+@media(min-width:760px){
+  .onb-shell{align-items:center;padding:40px 24px}
+  .onb-card{min-height:560px;border-radius:28px;box-shadow:var(--shadow-pop)}
+}
+.onb-step{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:56px 0 30px}
+.onb-icon-wrap{width:104px;height:104px;border-radius:30px;display:flex;align-items:center;justify-content:center}
+.onb-title{margin:30px 0 12px;font-family:'Fredoka';font-weight:600;font-size:24px;color:var(--pe-ink);max-width:300px;line-height:1.2}
+.onb-body{margin:0;font-size:14px;color:var(--pe-grey);line-height:1.65;max-width:300px}
+.onb-footer{flex:none}
+.onb-dots{display:flex;gap:8px;justify-content:center;margin-bottom:22px}
+.onb-dot{width:8px;height:8px;border-radius:50%;background:#DCE9F2;transition:background .25s}
+.onb-dot.on{background:var(--pe-blue)}
+
+/* Steps */
+.steps{display:flex;gap:8px;margin-bottom:22px}
+.steps span{flex:1;height:6px;border-radius:99px;background:#E2ECF3;transition:background .3s}
+.steps span.done{background:var(--pe-yellow)}
+.steps span.curr{background:var(--pe-blue)}
+
+/* ============ App shell ============ */
+.app-shell{min-height:100vh;display:flex;flex-direction:column;max-width:520px;margin:0 auto;background:var(--pe-mist);position:relative}
+@media(min-width:560px){.app-shell{box-shadow:0 0 60px rgba(10,85,134,.15)}}
+.app-header{
+  padding:22px 22px 64px;color:#fff;position:relative;
+}
+.app-header .top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.app-header .logo-rewards{display:inline-block;position:relative;z-index:1}
+.app-header .logo-rewards img{display:block;width:118px;height:auto}
+.app-header .logo-rewards .rewards-script{font-family:'Caveat',cursive;font-weight:700;font-size:25px;line-height:1;color:var(--pe-yellow);text-align:center;margin-top:1px}
+.avatar{
+  width:44px;height:44px;border-radius:50%;background:var(--pe-yellow);color:var(--pe-black);
+  font-family:'Fredoka';font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;
+  border:2.5px solid rgba(255,255,255,.85);box-shadow:0 4px 14px rgba(10,85,134,.35);position:relative;z-index:1;
+  cursor:pointer;
+}
+.greeting{margin-top:20px;position:relative;z-index:1}
+.greeting .hello{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.86);letter-spacing:.2px}
+.greeting h1{font-family:'Fredoka';font-weight:600;font-size:25px;line-height:1.12;white-space:nowrap}
+
+.app-body{flex:1;padding:0 18px 110px;margin-top:-38px;position:relative;z-index:2}
+
+/* ============ Desktop layout ============ */
+@media(min-width:760px){
+  body{background:var(--pe-blue)}
+  /* Only when app is active show as flex row */
+  .screen#scr-app.active{display:flex!important;min-height:100vh;width:100%}
+  .screen#scr-app.active .app-shell{max-width:none;flex-direction:row;flex:1;box-shadow:none;width:100%;margin:0}
+  /* Sidebar */
+  .screen#scr-app.active .desktop-sidebar{display:flex!important}
+  /* Header becomes band */
+  .screen#scr-app.active .app-header{padding:32px 48px 34px;border-radius:0}
+  .screen#scr-app.active .app-header .logo-rewards{display:none}
+  .screen#scr-app.active .app-header .top{display:none}
+  .screen#scr-app.active .app-header .greeting{margin-top:0;display:flex;align-items:center;justify-content:space-between}
+  .screen#scr-app.active .app-header .greeting h1{font-size:25px}
+  .screen#scr-app.active .pts-desktop-pill{display:flex!important}
+  /* Body */
+  .screen#scr-app.active .app-body{padding:28px 40px 40px;margin-top:0}
+  .screen#scr-app.active .rewards-page-header{padding-top:0}
+  /* Nav */
+  .bottom-nav{display:none!important}
+  /* Auth screens — card flotante centrada sobre stage azul */
+  .screen.active:not(#scr-app) .auth-shell{align-items:center;justify-content:center;padding:40px 24px}
+  .screen.active:not(#scr-app) .auth-card-wrap{
+    width:464px;max-width:100%;border-radius:28px;
+    box-shadow:0 30px 70px -24px rgba(4,34,56,.5);align-self:auto;
+  }
+}
+.desktop-sidebar{
+  display:none;flex:none;width:264px;min-height:100vh;background:#fff;
+  border-right:1px solid #E6EEF4;flex-direction:column;padding:26px 16px;position:relative;z-index:2;
+}
+.desktop-sidebar .sidebar-logo{padding:2px 10px 0}
+.desktop-sidebar .sidebar-logo img{display:block;width:148px;height:auto}
+.desktop-sidebar .sidebar-logo .rewards-script{font-family:'Caveat',cursive;font-weight:700;font-size:30px;line-height:1;color:#1581C5;margin-top:2px;padding-left:6px}
+.desktop-sidebar nav{margin-top:32px;display:flex;flex-direction:column;gap:4px}
+.desktop-sidebar .snav-btn{
+  display:flex;align-items:center;gap:13px;padding:12px 14px;border:none;border-radius:14px;
+  cursor:pointer;font:600 14px 'Poppins',sans-serif;background:transparent;color:#5A6B78;width:100%;text-align:left;
+}
+.desktop-sidebar .snav-btn.active{background:rgba(21,129,197,.12);color:var(--pe-blue)}
+.desktop-sidebar .snav-btn svg{flex:none}
+.sidebar-member{
+  margin-top:auto;display:flex;align-items:center;gap:11px;padding:11px;border:none;border-radius:16px;
+  cursor:pointer;background:#F4F8FB;text-align:left;width:100%;
+}
+.sidebar-member .sm-avatar{
+  flex:none;width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,#1581C5,#0E6BA6);color:#fff;
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+}
+.sidebar-member .sm-name{display:block;font-size:13px;font-weight:600;color:#23303B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pts-desktop-pill{
+  display:none;flex:none;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);
+  border-radius:16px;padding:10px 18px;text-align:right;
+}
+/* Wallet mini button (header) */
+.wallet-mini{flex:none;display:flex;align-items:center;gap:7px;background:var(--pe-black);color:#fff;border:none;border-radius:99px;padding:7px 12px 7px 9px;box-shadow:0 4px 14px rgba(10,40,60,.3);transition:transform .12s}
+.wallet-mini:active{transform:scale(.95)}
+.wallet-mini .wm-ic{flex:none;width:24px;height:24px;border-radius:7px;background:var(--pe-yellow);color:var(--pe-black);display:flex;align-items:center;justify-content:center}
+.wallet-mini .wm-text{text-align:left;line-height:1.05}
+.wallet-mini .wm-text small{display:block;font:500 8px 'Poppins',sans-serif;color:rgba(255,255,255,.7)}
+.wallet-mini .wm-text b{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:12px}
+.wallet-mini-desktop{display:none}
+@media(min-width:760px){ .screen#scr-app.active .wallet-mini-desktop{display:flex} }
+.pts-desktop-pill span:first-child{display:block;font:600 10px/1 'Poppins',sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.pts-desktop-pill .pts-val{display:block;font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;line-height:1.1;color:var(--pe-yellow);margin-top:2px}
+.page{display:none;animation:fadeUp .35s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+.card{background:#fff;border-radius:var(--radius-l);padding:22px;box-shadow:var(--shadow-card);margin-bottom:16px}
+.card h3{font-family:'Fredoka';font-weight:600;font-size:18px;margin-bottom:4px}
+.card .sub{font-size:13px;color:var(--pe-grey)}
+
+/* Points hero */
+.points-hero{display:flex;align-items:center;gap:18px}
+.points-num{font-family:'Fredoka';font-weight:700;font-size:46px;color:var(--pe-blue);line-height:1}
+.points-lbl{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--pe-grey);font-weight:600;margin-top:4px}
+
+/* Racket progress (signature) */
+.racket-wrap{position:relative;width:118px;flex:none}
+.racket-wrap svg{width:100%;display:block}
+.racket-caption{font-size:11px;text-align:center;color:var(--pe-grey);margin-top:4px;font-weight:600}
+.racket-best{font-size:10px;text-align:center;color:#9AAAB6;margin-top:1px;font-weight:600}
+.lap-badge{display:block;width:fit-content;margin:0 auto 6px;background:var(--pe-black);color:var(--pe-yellow);font-family:'Fredoka';font-weight:600;font-size:11px;padding:3px 11px;border-radius:99px;letter-spacing:.3px}
+.ico-racket{display:inline-block;vertical-align:-0.18em;flex:none}
+
+.track{height:12px;background:#E4EEF5;border-radius:99px;overflow:hidden;position:relative}
+.fill{height:100%;background:linear-gradient(90deg,var(--pe-blue),#3BA0DF);border-radius:99px;width:0;transition:width 1s cubic-bezier(.3,.8,.3,1);position:relative}
+.fill::after{content:'';position:absolute;right:-2px;top:50%;transform:translate(50%,-50%);width:20px;height:20px;border-radius:50%;background:var(--pe-yellow);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+
+/* Quick actions */
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.quick button{
+  background:#fff;border-radius:var(--radius-m);padding:16px 8px;box-shadow:var(--shadow-card);
+  display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--pe-ink);
+  transition:transform .15s;
+}
+.quick button:active{transform:scale(.95)}
+.quick .qi{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px}
+.qi-b{background:rgba(21,129,197,.12)} .qi-y{background:rgba(255,222,23,.35)} .qi-k{background:rgba(23,24,26,.08)}
+
+/* Badges */
+.badges{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.badges::-webkit-scrollbar{display:none}
+.badge{
+  flex:none;width:92px;text-align:center;background:#fff;border-radius:var(--radius-m);
+  padding:14px 8px;box-shadow:var(--shadow-card);
+}
+.badge .bi{width:48px;height:48px;margin:0 auto 8px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--pe-yellow)}
+.badge.locked .bi{background:#E4EEF5;filter:grayscale(1);opacity:.6}
+.badge p{font-size:11px;font-weight:600;line-height:1.25;color:var(--pe-ink)}
+.badge.locked p{color:var(--pe-grey)}
+
+/* Tiers */
+.tier{border-radius:var(--radius-l);background:#fff;box-shadow:var(--shadow-card);margin-bottom:18px;overflow:hidden}
+.tier-head{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.tier-head .th-l{display:flex;align-items:center;gap:14px}
+.tier-ball{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.t1 .tier-ball{background:rgba(21,129,197,.14);color:var(--pe-blue)}
+.t2 .tier-ball{background:rgba(255,222,23,.4);color:#8A6500}
+.t3 .tier-ball{background:var(--pe-black);color:#fff}
+.tier-head h4{font-family:'Fredoka';font-weight:600;font-size:17px}
+.tier-head .pts{font-size:12.5px;font-weight:700;color:var(--pe-blue);letter-spacing:.5px}
+.tier-state{font-size:11px;font-weight:700;padding:5px 11px;border-radius:99px;letter-spacing:.8px;text-transform:uppercase}
+.st-ok{background:rgba(46,164,79,.13);color:#1E7F3C}
+.st-no{background:#EEF3F7;color:var(--pe-grey)}
+.th-r{display:flex;align-items:center;gap:10px}
+.tier-chevron{font-size:14px;color:var(--pe-grey);transition:transform .25s ease;flex:none}
+.tier.open .tier-chevron{transform:rotate(180deg)}
+.tier-body{display:none;padding:0 16px 18px}
+.tier.open .tier-body{display:block}
+
+/* Rewards carousel (horizontal, snap) */
+.reward-carousel{
+  display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:4px 2px 10px;margin:0 -2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.reward-carousel::-webkit-scrollbar{display:none}
+.reward{
+  scroll-snap-align:center;flex:0 0 78%;max-width:240px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;
+  padding:20px 16px;border-radius:var(--radius-m);
+  border:1.5px solid #E7EFF5;background:#FBFDFE;
+}
+.reward .ri{width:60px;height:60px;border-radius:18px;background:var(--pe-mist);display:flex;align-items:center;justify-content:center;font-size:30px;flex:none;overflow:hidden}
+.reward .ri img{width:100%;height:100%;object-fit:cover;border-radius:18px}
+.reward .rt b{font-size:15px;display:block}
+.reward .rt span{font-size:12px;color:var(--pe-grey)}
+.reward .btn-redeem{width:100%;padding:11px}
+.carousel-dots{display:flex;justify-content:center;gap:6px;margin-top:2px}
+.carousel-dots i{width:6px;height:6px;border-radius:50%;background:#CFE0EC;transition:background .25s,width .25s}
+.carousel-dots i.on{background:var(--pe-blue);width:18px;border-radius:99px}
+.carousel-hint{text-align:center;font-size:11px;color:var(--pe-grey);margin-top:8px}
+.btn-redeem{
+  background:var(--pe-yellow);color:var(--pe-black);font-family:'Fredoka';font-weight:600;
+  font-size:13px;padding:9px 15px;border-radius:12px;flex:none;transition:transform .12s;
+}
+.btn-redeem:active{transform:scale(.94)}
+.btn-redeem:disabled{background:#E7EFF5;color:#A6B5C0;cursor:not-allowed}
+
+/* Redeem modal QR */
+.redeem-qr-frame{
+  width:172px;height:172px;margin:16px auto 8px;background:#fff;border-radius:18px;
+  border:3px solid var(--pe-blue);display:flex;align-items:center;justify-content:center;padding:11px;
+  box-shadow:var(--shadow-card);
+}
+.redeem-code-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--pe-grey);font-weight:600;margin-top:4px}
+
+
+/* QR */
+.qr-card{text-align:center;padding:30px 22px}
+.qr-frame{
+  width:228px;height:228px;margin:18px auto;background:#fff;border-radius:22px;
+  border:3px solid var(--pe-blue);display:flex;align-items:center;justify-content:center;padding:14px;
+  box-shadow:var(--shadow-card);
+}
+.qr-frame img, .qr-frame canvas{border-radius:8px}
+.qr-token{font-family:'Fredoka';font-weight:600;font-size:15px;letter-spacing:2px;color:var(--pe-grey);margin-top:10px}
+
+/* Promo carousel */
+.promo-carousel{
+  display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;padding:2px 0;margin-bottom:10px;scrollbar-width:none;
+}
+.promo-carousel::-webkit-scrollbar{display:none}
+.promo-card{
+  scroll-snap-align:center;flex:0 0 88%;min-height:122px;border:none;text-align:left;
+  border-radius:22px;padding:20px;position:relative;overflow:hidden;
+  box-shadow:0 8px 24px rgba(14,107,166,.12);display:flex;flex-direction:column;justify-content:center;
+}
+.promo-blob{position:absolute;right:-26px;top:-26px;width:108px;height:108px;border-radius:50%}
+.promo-eyebrow{position:relative;z-index:1;font:600 10.5px 'Poppins',sans-serif;letter-spacing:1.5px;text-transform:uppercase;opacity:.82}
+.promo-title{position:relative;z-index:1;font-family:'Fredoka';font-weight:600;font-size:19px;margin-top:5px;line-height:1.15}
+.promo-sub{position:relative;z-index:1;font-size:12.5px;margin-top:4px;opacity:.94;line-height:1.45}
+.promo-cta{position:relative;z-index:1;display:inline-flex;align-items:center;gap:5px;margin-top:11px;font:600 12px 'Fredoka',sans-serif}
+
+/* Wallet CTA (static black pill) */
+.wallet-cta{
+  width:100%;margin-top:20px;padding:16px 18px;border-radius:18px;
+  background:var(--pe-black);color:#fff;display:flex;align-items:center;gap:13px;
+  font-family:'Fredoka';font-weight:600;font-size:15px;letter-spacing:.3px;
+  box-shadow:0 10px 26px rgba(23,24,26,.22);text-align:left;
+  transition:transform .15s;
+}
+.wallet-cta:active{transform:scale(.96)}
+.wallet-cta .w-ic{
+  width:38px;height:38px;border-radius:11px;background:var(--pe-yellow);color:var(--pe-black);
+  display:flex;align-items:center;justify-content:center;flex:none;
+}
+.wallet-cta .w-text{flex:1}
+.wallet-cta small{display:block;font-family:'Poppins';font-weight:500;font-size:11.5px;color:#C9CFD4;margin-top:1px;letter-spacing:0}
+.wallet-cta .w-chev{flex:none;color:#9AAAB6}
+
+/* Wallet pass mockup */
+.wpass{
+  border-radius:18px;overflow:hidden;text-align:left;margin:18px 0;
+  box-shadow:0 16px 40px rgba(10,85,134,.3);background:#fff;
+}
+.wpass-head{padding:18px 18px 14px;color:#fff}
+.wpass-head .row1{display:flex;align-items:center;justify-content:space-between}
+.wpass-head .wordmark{font-size:17px}
+.wpass-head .ptype{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:600;opacity:.9}
+.wpass-fields{display:flex;justify-content:space-between;margin-top:16px}
+.wpass-fields .f label{display:block;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;font-weight:600}
+.wpass-fields .f b{font-family:'Fredoka';font-weight:600;font-size:17px}
+.wpass-fields .f .yel{color:var(--pe-yellow)}
+.wpass-qr{padding:16px;display:flex;justify-content:center;background:#fff}
+.wpass-num{text-align:center;font-size:11px;letter-spacing:3px;color:var(--pe-grey);font-weight:600;padding-bottom:14px}
+.wallet-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.wallet-btn{
+  background:var(--pe-black);color:#fff;border-radius:13px;padding:12px 8px;
+  display:flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;font-weight:600;
+  transition:transform .12s;
+}
+.wallet-btn:active{transform:scale(.95)}
+.wallet-btn.gw{background:#fff;color:var(--pe-ink);border:2px solid #DCE7EF}
+
+/* History */
+.hist{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:1px solid #EAF1F6}
+.hist:last-child{border-bottom:none}
+.hist .hi{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+.hi-earn{background:rgba(21,129,197,.12)}
+.hi-redeem{background:rgba(255,222,23,.4)}
+.hist .ht{flex:1}
+.hist .ht b{font-size:13.5px;display:block}
+.hist .ht span{font-size:11.5px;color:var(--pe-grey)}
+.hist .hp{font-family:'Fredoka';font-weight:600;font-size:15px}
+.hp.pos{color:var(--pe-blue)} .hp.neg{color:#C28A00}
+
+/* Account / FAQ */
+.menu-item{display:flex;align-items:center;gap:14px;width:100%;padding:16px 4px;border-bottom:1px solid #EAF1F6;font-size:14.5px;font-weight:500;color:var(--pe-ink);text-align:left}
+.menu-item:last-child{border-bottom:none}
+.menu-item .mi{width:38px;height:38px;border-radius:12px;background:var(--pe-mist);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+.menu-item .chev{margin-left:auto;color:#B6C4CF}
+.faq-q{width:100%;text-align:left;padding:15px 0;font-size:14px;font-weight:600;color:var(--pe-ink);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #EAF1F6}
+.faq-a{display:none;font-size:13px;color:var(--pe-grey);padding:0 0 15px;line-height:1.55;border-bottom:1px solid #EAF1F6}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-q{border-bottom:none}
+
+/* Bottom nav */
+.bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;
+  background:#fff;display:flex;justify-content:space-around;align-items:flex-end;
+  padding:10px 6px calc(12px + env(safe-area-inset-bottom));z-index:50;
+  box-shadow:0 -6px 24px rgba(10,85,134,.12);border-radius:24px 24px 0 0;
+}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;color:#9AAAB6;width:62px}
+.nav-btn .ni{line-height:1;display:flex;align-items:center;justify-content:center;height:24px}
+.nav-btn.active{color:var(--pe-blue)}
+.nav-qr{
+  width:62px;height:62px;border-radius:50%;background:var(--pe-yellow);margin-top:-34px;
+  display:flex;align-items:center;justify-content:center;
+  border:5px solid var(--pe-mist);box-shadow:0 8px 20px rgba(242,200,0,.5);
+}
+
+/* Points hero redesign */
+.points-num{font-family:'Fredoka';font-weight:700;font-size:48px;color:var(--pe-blue);line-height:1.04;letter-spacing:-1px}
+.points-lbl{font:600 11px/1 'Poppins',sans-serif;letter-spacing:1.6px;text-transform:uppercase;color:#6B7A87;margin-bottom:6px}
+.points-micro{margin:8px 0 0;font-size:12.5px;color:#6B7A87;line-height:1.5}
+
+/* Section heading */
+.rewards-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-top:50px}
+.rewards-page-header h2{font-family:'Fredoka';font-weight:600;font-size:25px;color:var(--pe-ink)}
+.rewards-page-header .sub{font-size:13px;color:var(--pe-grey);margin-top:2px}
+.pts-pill{background:rgba(21,129,197,.10);color:var(--pe-blue);font:700 13px 'Poppins';padding:6px 14px;border-radius:99px;white-space:nowrap}
+
+/* Help accordion on home */
+.help-accord{background:#fff;border-radius:22px;padding:6px 18px;box-shadow:var(--shadow-card);margin-bottom:16px}
+.help-accord .ha-q{width:100%;background:none;border:none;padding:15px 0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left;font:600 14px 'Poppins',sans-serif;color:var(--pe-ink)}
+.help-accord .ha-q + .ha-a{display:none;font-size:13px;color:var(--pe-grey);line-height:1.6;border-top:1px solid #EAF1F6;padding:13px 0 16px}
+.help-accord .ha-item.open .ha-a{display:block}
+.help-accord .ha-item.open .ha-q{border-bottom:none}
+.help-accord .ha-item + .ha-item .ha-q{border-top:1px solid #EAF1F6}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(10,40,60,.55);display:none;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(3px)}
+.modal-bg.open{display:flex}
+.modal{
+  background:#fff;border-radius:28px 28px 0 0;width:100%;max-width:520px;padding:28px 24px 40px;
+  animation:cardUp .35s ease;text-align:center;
+}
+.modal h3{font-family:'Fredoka';font-weight:600;font-size:21px}
+.modal .big-emoji{font-size:54px;margin-bottom:10px}
+.redeem-code{
+  font-family:'Fredoka';font-weight:700;font-size:25px;letter-spacing:5px;color:var(--pe-blue);
+  background:var(--pe-mist);border:2px dashed var(--pe-blue);border-radius:14px;padding:14px;margin:18px 0;
+}
+
+/* Toast */
+.toast{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-90px);
+  background:var(--pe-black);color:#fff;font-size:13.5px;font-weight:600;padding:13px 22px;
+  border-radius:99px;z-index:200;transition:transform .35s cubic-bezier(.3,.9,.3,1.2);max-width:90%;text-align:center;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Confetti */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:300;overflow:hidden}
+.cf{position:absolute;top:-20px;border-radius:50%;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* Special reward cards (welcome / birthday) */
+.special-card{
+  display:flex;align-items:center;gap:14px;border-radius:var(--radius-l);padding:18px;margin-bottom:14px;
+  box-shadow:var(--shadow-card);position:relative;overflow:hidden;animation:fadeUp .4s ease;
+}
+.special-card.welcome{background:linear-gradient(120deg,var(--pe-blue),#3BA0DF);color:#fff}
+.special-card.birthday{background:linear-gradient(120deg,#FFDE17,#FFB800);color:var(--pe-black)}
+.special-card::after{content:'';position:absolute;right:-26px;top:-26px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.18)}
+.special-card .sc-emoji{font-size:38px;flex:none}
+.special-card .sc-body{flex:1;position:relative;z-index:1}
+.special-card .sc-body b{display:block;font-family:'Fredoka';font-weight:600;font-size:16px}
+.special-card .sc-body span{font-size:12.5px;opacity:.92}
+.special-card .btn-redeem{position:relative;z-index:1;background:var(--pe-black);color:#fff}
+.special-card.birthday .btn-redeem{background:#fff;color:var(--pe-black)}
+
+/* Birthday celebration */
+.bday-layer{position:fixed;inset:0;pointer-events:none;z-index:310;overflow:hidden;display:none}
+.bday-layer.show{display:block}
+.balloon{position:absolute;bottom:-60px;animation:floatUp linear forwards}
+@keyframes floatUp{to{transform:translateY(-115vh) rotate(20deg)}}
+.bday-banner{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;z-index:320;
+  background:#fff;border:4px solid var(--pe-yellow);border-radius:24px;padding:26px 30px;text-align:center;
+  box-shadow:var(--shadow-pop);transition:transform .5s cubic-bezier(.2,1.3,.4,1),opacity .4s;pointer-events:none;max-width:80%;
+}
+.bday-banner.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+.bday-banner .be{font-size:50px}
+.bday-banner h3{font-family:'Fredoka';font-weight:700;font-size:24px;color:var(--pe-blue);margin-top:6px}
+.bday-banner p{font-size:13.5px;color:var(--pe-grey);margin-top:6px}
+
+.section-title{font-family:'Fredoka';font-weight:600;font-size:17px;margin:6px 4px 12px;display:flex;align-items:center;gap:8px}
+.section-title .script{color:var(--pe-blue);font-size:21px}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH: SIGN IN ================= -->
+<div class="screen active" id="scr-login">
+  <div class="auth-shell">
+    <div class="auth-card-wrap">
+    <div class="auth-hero pattern-blue">
+      <div style="position:relative;z-index:1">
+        <img src="assets/logo-padel-ecuador-white.png" alt="Padel Ecuador" style="display:block;width:148px;height:auto">
+        <div class="script" style="font-size:28px;color:var(--pe-yellow);margin-top:3px">Rewards</div>
+      </div>
+      <div class="tagline" style="position:relative;z-index:1">
+        <small style="font-family:'Poppins';font-size:12px;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;color:#fff">Club de puntos · Guayaquil</small>
+      </div>
+    </div>
+    <div class="auth-card">
+      <h2>Hola de nuevo</h2>
+      <p class="sub">Inicia sesión para sumar puntos y canjear tus premios.</p>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="li-email" placeholder="tu@email.com">
+        <p class="err" id="li-email-err"></p>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="li-pass" placeholder="Tu contraseña">
+        <p class="err" id="li-pass-err"></p>
+      </div>
+      <div style="text-align:right;margin-bottom:18px">
+        <button class="link" onclick="goScreen('scr-forgot')">¿Olvidaste tu contraseña?</button>
+      </div>
+      <button class="btn btn-yellow" onclick="doLogin(this)">Iniciar sesión</button>
+      <p class="center mt24" style="font-size:14px;color:var(--pe-grey)">¿Nuevo en el club?</p>
+      <button class="btn btn-ghost" onclick="startRegister()">Crear cuenta gratis</button>
+    </div>
+    </div><!-- /auth-card-wrap -->
+  </div>
+</div>
+
+<!-- ================= AUTH: REGISTER ================= -->
+<div class="screen" id="scr-register">
+  <div class="auth-shell">
+    <div class="auth-card-wrap">
+    <div class="auth-hero pattern-blue" style="padding-bottom:60px">
+      <div style="position:relative;z-index:1">
+        <img src="assets/logo-padel-ecuador-white.png" alt="Padel Ecuador" style="display:block;width:120px;height:auto">
+        <div class="script" style="font-size:24px;color:var(--pe-yellow);margin-top:3px">Únete al club</div>
+      </div>
+    </div>
+    <div class="auth-card">
+      <div class="steps"><span id="stp1"></span><span id="stp2"></span></div>
+
+      <!-- Step 1: Acceso y nombre -->
+      <div id="reg-1">
+        <h2>Crea tu cuenta</h2>
+        <p class="sub">Paso 1 de 2 · Acceso y nombre</p>
+        <div class="field"><label>Email</label>
+          <input type="email" id="rg-email" placeholder="tu@email.com" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email">
+          <p class="err" id="rg-email-err"></p>
+          <p class="hint" id="rg-email-suggest" style="display:none;color:var(--pe-blue);cursor:pointer"></p>
+        </div>
+        <div class="field"><label>Contraseña</label>
+          <input type="password" id="rg-pass" placeholder="Mínimo 6 caracteres"><p class="err" id="rg-pass-err"></p></div>
+        <div class="field"><label>Nombres</label>
+          <input type="text" id="rg-fn" placeholder="María José"><p class="err" id="rg-fn-err"></p></div>
+        <div class="field"><label>Apellidos</label>
+          <input type="text" id="rg-ln" placeholder="Andrade Vera"><p class="err" id="rg-ln-err"></p></div>
+        <button class="btn btn-blue mt8" onclick="regStep1(this)">Continuar</button>
+        <button class="btn btn-ghost mt8" onclick="goScreen('scr-login')">Ya tengo cuenta</button>
+      </div>
+
+      <!-- Step 2: Identidad y contacto -->
+      <div id="reg-2" style="display:none">
+        <h2>Identidad y contacto</h2>
+        <p class="sub">Paso 2 de 2 · Casi listo</p>
+        <div class="field"><label>Cédula de identidad</label>
+          <input type="text" id="rg-ced" maxlength="10" inputmode="numeric" placeholder="0912345678">
+          <p class="err" id="rg-ced-err"></p>
+          <p class="hint">La usamos para verificar tu identidad al canjear premios en recepción.</p></div>
+        <div class="field"><label>Número de celular</label>
+          <input type="tel" id="rg-phone" maxlength="10" inputmode="numeric" placeholder="0991234567">
+          <p class="err" id="rg-phone-err"></p>
+          <p class="hint">10 dígitos · Ecuador +593</p></div>
+        <div class="field"><label>Fecha de nacimiento</label>
+          <input type="date" id="rg-bday"><p class="err" id="rg-bday-err"></p>
+          <p class="hint">Te daremos un regalo especial el día de tu cumpleaños.</p></div>
+        <div class="field" style="margin-top:18px">
+          <label style="display:flex;align-items:flex-start;gap:10px;font-weight:400;font-size:13px;color:var(--pe-grey);cursor:pointer">
+            <input type="checkbox" id="rg-terms" style="width:18px;height:18px;flex:none;margin-top:1px;accent-color:var(--pe-blue)">
+            <span>Acepto los <b style="color:var(--pe-blue)">Términos y Condiciones</b> y la <b style="color:var(--pe-blue)">Política de Privacidad</b>, y autorizo recibir comunicaciones del club por email y SMS.</span>
+          </label>
+          <p class="err" id="rg-terms-err"></p>
+        </div>
+        <button class="btn btn-yellow mt8" onclick="regStep2(this)">Crear cuenta</button>
+        <button class="btn btn-ghost mt8" onclick="regBack(1)">Atrás</button>
+      </div>
+
+      <!-- Step 3/4 stubs kept for JS compatibility -->
+      <div id="reg-3" style="display:none"></div>
+      <div id="reg-4" style="display:none"></div>
+    </div>
+    </div><!-- /auth-card-wrap -->
+  </div>
+</div>
+
+<!-- ================= AUTH: FORGOT ================= -->
+<div class="screen" id="scr-forgot">
+  <div class="auth-shell">
+    <div class="auth-card-wrap">
+    <div class="auth-hero pattern-blue" style="padding-bottom:60px">
+      <div style="position:relative;z-index:1">
+        <img src="assets/logo-padel-ecuador-white.png" alt="Padel Ecuador" style="display:block;width:120px;height:auto">
+      </div>
+    </div>
+    <div class="auth-card">
+      <div id="fg-1">
+        <h2>Recupera tu acceso</h2>
+        <p class="sub">Ingresa tu email y te enviaremos un código de verificación.</p>
+        <div class="field"><label>Email</label>
+          <input type="email" id="fg-email" placeholder="tu@email.com"><p class="err" id="fg-email-err"></p></div>
+        <button class="btn btn-blue" onclick="fgStep1(this)">Enviar código</button>
+        <button class="btn btn-ghost mt8" onclick="goScreen('scr-login')">Volver</button>
+      </div>
+      <div id="fg-2" style="display:none">
+        <h2>Ingresa el código</h2>
+        <p class="sub">Te enviamos un enlace y un código de verificación a <b id="fg-email-show"></b>. Copia el código del email.</p>
+        <div class="field"><label>Código de verificación</label>
+          <input type="text" id="fg-token" placeholder="Código del email"><p class="err" id="fg-otp-err"></p></div>
+        <button class="btn btn-blue mt16" onclick="fgStep2()">Verificar</button>
+      </div>
+      <div id="fg-3" style="display:none">
+        <h2>Nueva contraseña</h2>
+        <p class="sub">Crea una contraseña segura para tu cuenta.</p>
+        <div class="field"><label>Nueva contraseña</label>
+          <input type="password" id="fg-pass" placeholder="Mínimo 6 caracteres"><p class="err" id="fg-pass-err"></p></div>
+        <div class="field"><label>Confirmar contraseña</label>
+          <input type="password" id="fg-pass2" placeholder="Repite tu contraseña"><p class="err" id="fg-pass2-err"></p></div>
+        <button class="btn btn-yellow" onclick="fgStep3(this)">Guardar y entrar</button>
+      </div>
+    </div>
+    </div><!-- /auth-card-wrap -->
+  </div>
+</div>
+
+<!-- ================= ONBOARDING ================= -->
+<div class="screen" id="scr-onboarding">
+  <div class="onb-shell">
+    <div class="onb-card">
+      <!-- Step 0: Suma puntos -->
+      <div class="onb-step" id="onb-0">
+        <span class="onb-icon-wrap" style="background:rgba(255,222,23,.30);color:#0A5586">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><line x1="14" y1="14" x2="14" y2="14.01"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="14" y1="21" x2="14" y2="21.01"/><line x1="21" y1="21" x2="21" y2="21.01"/><line x1="17.5" y1="17.5" x2="17.5" y2="17.51"/></svg>
+        </span>
+        <h2 class="onb-title">Suma puntos en cada visita</h2>
+        <p class="onb-body">Muestra tu código en recepción o en el bar. Cada $1 que gastas en el club suma 10 puntos.</p>
+      </div>
+      <!-- Step 1: Mantén tu racha -->
+      <div class="onb-step" id="onb-1" style="display:none">
+        <span class="onb-icon-wrap" style="background:transparent">
+          <svg viewBox="0 0 120 168" width="74" height="104" aria-hidden="true"><path d="M60 6C90 6 116 26 116 56C116 86 102 104 86 112L72 124L72 154C72 159 67 161 60 161C53 161 48 159 48 154L48 124L34 112C18 104 4 86 4 56C4 26 30 6 60 6Z" fill="#fff" stroke="#1581C5" stroke-width="6" stroke-linejoin="round"/><g fill="#FFDE17"><circle cx="45" cy="40" r="6"/><circle cx="60" cy="40" r="6"/><circle cx="75" cy="40" r="6"/><circle cx="45" cy="58" r="6"/><circle cx="60" cy="58" r="6"/><circle cx="75" cy="58" r="6"/><circle cx="45" cy="76" r="6"/><circle cx="60" cy="76" r="6"/><circle cx="75" cy="76" r="6"/></g></svg>
+        </span>
+        <h2 class="onb-title">Mantén tu racha de visitas</h2>
+        <p class="onb-body">Cada visita enciende una pelotita de tu raqueta. Vuelve cada 3 días para mantener tu racha viva y ver cuánto llegas.</p>
+      </div>
+      <!-- Step 2: Canjea premios -->
+      <div class="onb-step" id="onb-2" style="display:none">
+        <span class="onb-icon-wrap" style="background:rgba(21,129,197,.12);color:var(--pe-blue)">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+        </span>
+        <h2 class="onb-title">Canjea premios del club</h2>
+        <p class="onb-body">Desde 300 puntos: gorras, overgrips, clases, reservas de cancha y mucho más.</p>
+      </div>
+      <div class="onb-footer">
+        <div class="onb-dots">
+          <span class="onb-dot" id="onb-dot-0"></span>
+          <span class="onb-dot" id="onb-dot-1"></span>
+          <span class="onb-dot" id="onb-dot-2"></span>
+        </div>
+        <button class="btn btn-blue" id="onb-next-btn" onclick="onbNext()">Siguiente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div class="screen" id="scr-app">
+  <div class="app-shell">
+
+    <!-- Desktop sidebar -->
+    <aside class="desktop-sidebar" id="desktop-sidebar">
+      <div class="sidebar-logo">
+        <img src="assets/logo-padel-ecuador-color.png" alt="Padel Ecuador">
+        <div class="rewards-script">Rewards</div>
+      </div>
+      <nav>
+        <button class="snav-btn active" id="snav-home" onclick="goPage('pg-home')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+          Inicio
+        </button>
+        <button class="snav-btn" id="snav-rewards" onclick="goPage('pg-rewards')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          Premios
+        </button>
+        <button class="snav-btn" id="snav-qr" onclick="goPage('pg-qr')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><line x1="14" y1="14" x2="14" y2="14.01"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="14" y1="21" x2="14" y2="21.01"/><line x1="21" y1="21" x2="21" y2="21.01"/><line x1="17.5" y1="17.5" x2="17.5" y2="17.51"/></svg>
+          Mi código
+        </button>
+        <button class="snav-btn" id="snav-historial" onclick="goPage('pg-historial')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+          Historial
+        </button>
+        <button class="snav-btn" id="snav-account" onclick="goPage('pg-account')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Cuenta
+        </button>
+      </nav>
+      <button class="sidebar-member" onclick="goPage('pg-account')">
+        <span class="sm-avatar" id="sidebar-avatar">PE</span>
+        <span style="flex:1;min-width:0">
+          <span class="sm-name" id="sidebar-name">Jugador</span>
+        </span>
+      </button>
+    </aside>
+
+    <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+    <div class="app-header pattern-blue">
+      <div class="top">
+        <div class="logo-rewards">
+          <img src="assets/logo-padel-ecuador-white.png" alt="Padel Ecuador">
+          <div class="rewards-script">Rewards</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="wallet-mini" aria-label="Añadir tarjeta a Wallet" onclick="openWallet()">
+            <span class="wm-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+            <span class="wm-text"><small>Añadir a</small><b>Wallet</b></span>
+          </button>
+          <button class="avatar" id="avatar" aria-label="Mi cuenta" onclick="goPage('pg-account')">PE</button>
+        </div>
+      </div>
+      <div class="greeting">
+        <div>
+          <p class="hello" id="greet-time">Buenos días</p>
+          <h1 id="greet-name">Jugador/a</h1>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <button class="wallet-mini wallet-mini-desktop" aria-label="Añadir tarjeta a Wallet" onclick="openWallet()">
+            <span class="wm-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+            <span class="wm-text"><small>Añadir a</small><b>Wallet</b></span>
+          </button>
+          <div class="pts-desktop-pill">
+            <span>Puntos</span>
+            <span class="pts-val" id="pts-desktop">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-body">
+
+      <!-- ===== HOME ===== -->
+      <div class="page active" id="pg-home">
+
+        <!-- Special rewards (welcome / birthday) — only render when available > 0 -->
+        <div id="specials" style="display:none"></div>
+
+        <!-- Points + racket card -->
+        <div class="card">
+          <div class="points-hero">
+            <div style="flex:1;min-width:0">
+              <div class="points-lbl">Puntos disponibles</div>
+              <div class="points-num" id="pts-num">0</div>
+              <p class="points-micro">Canjea premios desde <b style="color:var(--pe-ink);font-weight:600">300 pts</b></p>
+            </div>
+            <div class="racket-wrap" id="racket-wrap" style="width:104px">
+              <div id="lap-badge-host"></div>
+              <div id="racket-rackets-host" style="display:flex;gap:6px;align-items:flex-end;justify-content:center"></div>
+              <p class="racket-caption" id="racket-caption">Racha de 0 visitas</p>
+              <p class="racket-best" id="racket-best">Mejor racha: 0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick">
+          <button onclick="goPage('pg-qr')">
+            <span class="qi qi-y" style="color:#0A5586">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><line x1="14" y1="14" x2="14" y2="14.01"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="14" y1="21" x2="14" y2="21.01"/><line x1="21" y1="21" x2="21" y2="21.01"/><line x1="17.5" y1="17.5" x2="17.5" y2="17.51"/></svg>
+            </span>Mi código
+          </button>
+          <button onclick="goPage('pg-rewards')">
+            <span class="qi qi-b" style="color:var(--pe-blue)">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            </span>Premios
+          </button>
+          <button onclick="goPage('pg-historial')">
+            <span class="qi qi-k" style="color:#17181A">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+            </span>Historial
+          </button>
+        </div>
+
+        <!-- Promo carousel (data-driven; replace these 3 placeholders with the club's real promos) -->
+        <div class="promo-carousel" id="promo-carousel" onscroll="syncPromoDots()">
+          <button class="promo-card" style="background:linear-gradient(120deg,#1581C5,#3BA0DF);color:#fff" onclick="toast('Promo: Torneo relámpago')">
+            <span class="promo-blob" style="background:rgba(255,255,255,.14)"></span>
+            <span class="promo-eyebrow">Torneo</span>
+            <b class="promo-title">Torneo relámpago</b>
+            <span class="promo-sub">Inscríbete antes del viernes y suma puntos dobles.</span>
+            <span class="promo-cta" style="color:var(--pe-yellow)">Inscribirme
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+          </button>
+          <button class="promo-card" style="background:var(--pe-black);color:#fff" onclick="toast('Promo: Trae un amigo')">
+            <span class="promo-blob" style="background:rgba(255,222,23,.16)"></span>
+            <span class="promo-eyebrow">Beneficio</span>
+            <b class="promo-title">Trae un amigo</b>
+            <span class="promo-sub">Clase 2x1 durante todo el mes para socios.</span>
+            <span class="promo-cta" style="color:var(--pe-yellow)">Ver detalles
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+          </button>
+          <button class="promo-card" style="background:linear-gradient(120deg,#FFDE17,#FFD000);color:var(--pe-black)" onclick="toast('Promo: Happy hour')">
+            <span class="promo-blob" style="background:rgba(0,0,0,.06)"></span>
+            <span class="promo-eyebrow">Bar del club</span>
+            <b class="promo-title">Happy hour</b>
+            <span class="promo-sub">20% en el bar de 5 a 7 pm, todos los días.</span>
+            <span class="promo-cta" style="color:#0A5586">Conocer más
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+          </button>
+        </div>
+        <div class="carousel-dots" id="promo-dots">
+          <i class="on"></i><i></i><i></i>
+        </div>
+
+        <!-- Wallet CTA (static) -->
+        <button class="wallet-cta" style="margin:0 0 16px" onclick="openWallet()">
+          <span class="w-ic">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </span>
+          <span class="w-text">
+            <span style="display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px">Añade tu tarjeta a Wallet</span>
+            <small>Tu código a un toque · Apple &amp; Google</small>
+          </span>
+          <svg class="w-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
+        <!-- Help accordion -->
+        <div class="help-accord">
+          <div class="ha-item">
+            <button class="ha-q" onclick="this.closest('.ha-item').classList.toggle('open')">
+              <span>¿Cómo sumo puntos?</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <p class="ha-a">Muestra tu código en recepción o en el bar cada vez que reserves cancha, tomes una clase o compres en el club. Cada <b style="color:var(--pe-blue)">$1 = 10 puntos</b>.</p>
+          </div>
+          <div class="ha-item">
+            <button class="ha-q" onclick="this.closest('.ha-item').classList.toggle('open')">
+              <span>¿Cómo funciona tu racha?</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <p class="ha-a">Cada visita enciende una pelotita de tu raqueta. Visita el club al menos <b style="color:var(--pe-blue)">cada 3 días</b> para mantener tu racha viva — si pasa más tiempo, vuelve a cero.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== REWARDS ===== -->
+      <div class="page" id="pg-rewards">
+        <div class="rewards-page-header">
+          <div>
+            <h2>Premios</h2>
+            <p class="sub">Canjea tus puntos por experiencias</p>
+          </div>
+          <span class="pts-pill" id="rewards-pts-pill">0 pts</span>
+        </div>
+        <div id="tiers"></div>
+      </div>
+
+      <!-- ===== HISTORIAL ===== -->
+      <div class="page" id="pg-historial">
+        <div class="rewards-page-header">
+          <div>
+            <h2>Historial</h2>
+            <p class="sub">Tus puntos, visitas y canjes recientes</p>
+          </div>
+        </div>
+        <div class="card">
+          <div id="tx-list" class="mt8"><p class="sub">Cargando…</p></div>
+          <button class="btn btn-ghost mt8" id="tx-more" style="display:none" onclick="loadTransactions(false)">Ver más</button>
+        </div>
+      </div>
+
+      <!-- ===== QR ===== -->
+      <div class="page" id="pg-qr">
+        <div class="card qr-card">
+          <h3>Tu código del club</h3>
+          <p class="sub">Muéstralo en recepción o en el bar para sumar puntos y aplicar tus beneficios.</p>
+          <div class="qr-frame"><div id="qr-box"></div></div>
+          <p class="qr-token" id="qr-token"></p>
+          <button class="wallet-cta" onclick="openWallet()">
+            <span class="w-ic">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </span>
+            <span class="w-text">
+              <span style="display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px">Añade tu tarjeta a Wallet</span>
+              <small>Tu QR siempre a un toque · Apple &amp; Google</small>
+            </span>
+            <svg class="w-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="card">
+          <h3>¿Cómo sumo y canjeo?</h3>
+          <p class="sub" style="margin-top:8px;line-height:1.6">
+            Presenta este QR en recepción o en el bar. El club registra tu compra y tus
+            <b style="color:var(--pe-blue)">puntos y visitas</b> se actualizan al instante.
+            Cada visita enciende una pelotita de tu raqueta y suma a tu racha.
+          </p>
+        </div>
+      </div>
+
+      <!-- ===== ACCOUNT ===== -->
+      <div class="page" id="pg-account">
+        <div class="card">
+          <!-- Profile header -->
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+            <div style="flex:none;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#1581C5,#0E6BA6);color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;display:flex;align-items:center;justify-content:center" id="acc-avatar">PE</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:18px;color:var(--pe-ink)" id="acc-name">Mi cuenta</div>
+            </div>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(30,127,60,.10);color:#1E7F3C;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Verificado
+            </span>
+          </div>
+          <!-- Contact rows -->
+          <div style="display:flex;flex-direction:column;gap:8px;padding:14px 0;border-top:1px solid #EAF1F6;border-bottom:1px solid #EAF1F6;margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--pe-grey)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span id="acc-email"></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--pe-grey)" id="acc-phone-row">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span id="acc-phone"></span>
+            </div>
+          </div>
+          <p class="sub" id="acc-status" style="margin-top:8px;display:none"></p>
+          <div class="mt8">
+            <button class="menu-item" onclick="openEdit()">
+              <span class="mi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
+              Editar mis datos<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <button class="menu-item" onclick="toggleFaq()">
+              <span class="mi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+              Preguntas frecuentes<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <button class="menu-item" onclick="window.open('https://wa.me/593999999999?text=Hola%20Padel%20Ecuador','_blank')">
+              <span class="mi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+              WhatsApp<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <button class="menu-item" style="color:#E5484D" onclick="logout()">
+              <span class="mi" style="background:rgba(229,72,77,.10)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E5484D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+        <div class="card" id="faq-card" style="display:none">
+          <h3>Preguntas frecuentes</h3>
+          <div class="mt8">
+            <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Cómo sumo puntos? <span>+</span></button>
+              <p class="faq-a">Muestra tu QR o indica tu cédula en cada compra del club: reservas de cancha, clases, bar y tienda. Cada $1 suma 10 puntos.</p></div>
+            <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Los puntos caducan? <span>+</span></button>
+              <p class="faq-a">Tus puntos tienen vigencia de 12 meses desde la fecha en que los ganaste. ¡Canjéalos antes de que expiren!</p></div>
+            <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Cómo canjeo un premio? <span>+</span></button>
+              <p class="faq-a">Entra a Premios, elige tu recompensa y presiona Canjear. Recibirás un código que presentas en recepción para retirar tu premio.</p></div>
+          </div>
+        </div>
+        <div class="card" id="edit-card" style="display:none">
+          <h3>Editar mis datos</h3>
+          <div class="mt16">
+            <div class="field"><label>Nombres</label><input type="text" id="ed-fn"><p class="err" id="ed-fn-err"></p></div>
+            <div class="field"><label>Apellidos</label><input type="text" id="ed-ln"><p class="err" id="ed-ln-err"></p></div>
+            <div class="field"><label>Email</label><input type="email" id="ed-email"><p class="err" id="ed-email-err"></p></div>
+            <div class="field"><label>Celular</label><input type="tel" id="ed-phone" maxlength="10" inputmode="numeric" placeholder="0991234567"><p class="err" id="ed-phone-err"></p></div>
+            <div class="field"><label>Nueva contraseña (opcional)</label><input type="password" id="ed-pass1" placeholder="Dejar en blanco para no cambiar"><p class="err" id="ed-pass1-err"></p></div>
+            <div class="field"><label>Contraseña actual</label><input type="password" id="ed-pass0" placeholder="Requerida para guardar"><p class="err" id="ed-pass0-err"></p></div>
+            <button class="btn btn-blue" onclick="saveProfile()">Guardar cambios</button>
+            <button class="btn btn-ghost mt8" onclick="hide('edit-card')">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-pg="pg-home" onclick="goPage('pg-home',this)">
+        <span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>Inicio
+      </button>
+      <button class="nav-btn" data-pg="pg-rewards" onclick="goPage('pg-rewards',this)">
+        <span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>Premios
+      </button>
+      <button class="nav-qr" onclick="goPage('pg-qr')">
+        <svg class="ico-racket" viewBox="0 0 120 168" width="26" height="36" style="color:var(--pe-blue-deep)" aria-hidden="true"><path d="M60 6C90 6 116 26 116 56C116 86 102 104 86 112L72 124L72 154C72 159 67 161 60 161C53 161 48 159 48 154L48 124L34 112C18 104 4 86 4 56C4 26 30 6 60 6Z" fill="currentColor"/><g fill="#fff" opacity=".55"><circle cx="45" cy="40" r="6"/><circle cx="60" cy="40" r="6"/><circle cx="75" cy="40" r="6"/><circle cx="45" cy="58" r="6"/><circle cx="60" cy="58" r="6"/><circle cx="75" cy="58" r="6"/><circle cx="45" cy="76" r="6"/><circle cx="60" cy="76" r="6"/><circle cx="75" cy="76" r="6"/></g></svg>
+      </button>
+      <button class="nav-btn" data-pg="pg-historial" onclick="goPage('pg-historial',this)">
+        <span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></span>Historial
+      </button>
+      <button class="nav-btn" data-pg="pg-account" onclick="goPage('pg-account',this)">
+        <span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Cuenta
+      </button>
+    </nav>
+    </div><!-- /flex-col wrapper -->
+  </div>
+</div>
+
+<!-- Wallet modal -->
+<div class="modal-bg" id="wallet-bg">
+  <div class="modal">
+    <h3>Tu tarjeta del club</h3>
+    <p class="sub" style="margin-top:4px">Así se verá en tu Wallet. Puntos y nivel siempre actualizados.</p>
+    <div class="wpass">
+      <div class="wpass-head pattern-blue">
+        <div class="row1">
+          <img src="assets/logo-padel-ecuador-white.png" alt="Padel Ecuador" style="height:28px;width:auto;display:block">
+          <span class="ptype">Club de puntos</span>
+        </div>
+        <div class="wpass-fields">
+          <div class="f"><label>Socio</label><b id="wp-name"></b></div>
+          <div class="f"><label>Puntos</label><b class="yel" id="wp-pts"></b></div>
+        </div>
+      </div>
+      <div class="wpass-qr"><div id="wp-qr"></div></div>
+      <p class="wpass-num" id="wp-num"></p>
+    </div>
+    <div class="wallet-btns">
+      <button class="wallet-btn" onclick="addToWallet('Apple Wallet')"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple Wallet</button>
+      <button class="wallet-btn gw" onclick="addToWallet('Google Wallet')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Google Wallet</button>
+    </div>
+    <button class="btn btn-ghost mt8" onclick="closeWallet()">Quizás después</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="bday-layer" id="bday-layer"></div>
+<div class="bday-banner" id="bday-banner">
+  <div class="be">🎂</div>
+  <h3>¡Feliz cumpleaños! 🎉</h3>
+  <p>El club tiene un regalo especial esperándote.<br>Revisa tus premios. <svg class="ico-racket" viewBox="0 0 120 168" width="16" height="22" style="color:var(--pe-blue)" aria-hidden="true"><path d="M60 6C90 6 116 26 116 56C116 86 102 104 86 112L72 124L72 154C72 159 67 161 60 161C53 161 48 159 48 154L48 124L34 112C18 104 4 86 4 56C4 26 30 6 60 6Z" fill="currentColor"/><g fill="#fff" opacity=".55"><circle cx="45" cy="40" r="6"/><circle cx="60" cy="40" r="6"/><circle cx="75" cy="40" r="6"/><circle cx="45" cy="58" r="6"/><circle cx="60" cy="58" r="6"/><circle cx="75" cy="58" r="6"/><circle cx="45" cy="76" r="6"/><circle cx="60" cy="76" r="6"/><circle cx="75" cy="76" r="6"/></g></svg></p>
+</div>
+
+<script>
+/* ============================================================
+   PADEL ECUADOR · Loyalty Web App
+   Spoonity Consumer API integration layer
+   ============================================================ */
+
+/* ---------- Config ---------- */
+const CONFIG = {
+  // Toggle DEMO_MODE=false once the proxy is live. When false, calls go to PROXY_BASE.
+  DEMO_MODE: false,
+  PROXY_BASE: 'https://api.spoonity.com',          // direct to Spoonity (may hit CORS in the browser)
+  VENDOR: 2112777,
+  LANGUAGE: 3,                          // 3 = Spanish
+  CONSENT_FULL: 3,                      // 3 = email + SMS when T&C accepted
+  CURRENCY: {
+    POINTS: 10340,                      // main program: balance + spending_rules => tiers & rewards
+    WELCOME: 10341,                     // special reward, visible only when available > 0
+    BIRTHDAY: 10342,                    // special reward, visible only when available > 0 (special animation)
+    VISITS: 10346,                      // drives the racket balls (balance = visit count, cost = goal)
+    RAQUETA: 10347                      // free racket reward, unlocked once the visit goal is reached
+  },
+  VISIT_GOAL: 36                        // fallback goal if the visitas spending rule has no cost
+};
+
+const LS_SESSION = 'padelEC_session';   // stores { session_key, email, ced, fn, ln, member }
+
+/* ------------------------------------------------------------
+   API error translation — Spoonity returns its `error.errors[].message`
+   in English. We try to translate it to a useful Spanish message
+   instead of a generic fallback, using the known error code first
+   and falling back to keyword matching on the English text.
+   ------------------------------------------------------------ */
+const ERROR_CODE_ES = {
+  16902: 'Tu cuenta necesita verificación. Revisa tu correo para activarla.',
+};
+const ERROR_PHRASE_ES = [
+  [/invalid.*(email|password)|invalid.*credentials|incorrect.*password/i, 'Email o contraseña incorrectos.'],
+  [/already (exists|registered|taken)|duplicate/i, 'Este dato ya tiene una cuenta registrada.'],
+  [/password/i, 'La contraseña no cumple los requisitos: mínimo 6 caracteres, con mayúscula, minúscula y un número.'],
+  [/(token|code).*(expired|invalid)|invalid.*(token|code)/i, 'El código o enlace no es válido o ya expiró.'],
+  [/cedula|identification|document/i, 'La cédula ingresada no es válida.'],
+  [/phone|mobile/i, 'Revisa el número de celular ingresado.'],
+  [/not found/i, 'No encontramos lo que buscas.'],
+  [/required|missing|blank|empty/i, 'Falta información requerida. Revisa los datos ingresados.'],
+  [/verif/i, 'Tu cuenta necesita verificación.'],
+];
+function translateApiMessage(code, apiMsg, status){
+  if(code != null && ERROR_CODE_ES[code]) return ERROR_CODE_ES[code];
+  if(apiMsg){
+    for(const [re, es] of ERROR_PHRASE_ES){ if(re.test(apiMsg)) return es; }
+  }
+  if(status === 401) return 'Email o contraseña incorrectos.';
+  if(status === 409) return 'Este dato ya tiene una cuenta registrada.';
+  if(status >= 500) return 'Servicio no disponible por el momento. Reintenta en unos minutos.';
+  return 'Ocurrió un error. Inténtalo de nuevo.';
+}
+
+/* ============================================================
+   SpoonityAPI — single integration surface.
+   In DEMO_MODE it returns realistic mock payloads shaped exactly
+   like the real endpoints so the UI is fully exercised offline.
+   ============================================================ */
+const SpoonityAPI = {
+  _url(path){ return CONFIG.PROXY_BASE + path; },
+
+  async _post(path, body){
+    if(CONFIG.DEMO_MODE) return this._mock(path, body, 'POST');
+    const r = await fetch(this._url(path), {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    });
+    if(!r.ok){ const e = await this._err(r); throw e; }
+    return this._safeJson(r);
+  },
+
+  async _get(path, params){
+    if(CONFIG.DEMO_MODE) return this._mock(path, params, 'GET');
+    const qs = new URLSearchParams(params||{}).toString();
+    const r = await fetch(this._url(path) + (qs?('?'+qs):''));
+    if(!r.ok){ const e = await this._err(r); throw e; }
+    return this._safeJson(r);
+  },
+
+  async _safeJson(r){
+    // Some Spoonity endpoints (e.g. PUT /user/profile) return empty 200 bodies.
+    const len = r.headers.get('content-length');
+    if(len === '0') return {};
+    const txt = await r.text();
+    return txt ? JSON.parse(txt) : {};
+  },
+
+  async _err(r){
+    let code = null;
+    let apiMsg = null;
+    try{
+      const body = await r.json();
+      const first = body && body.error && body.error.errors && body.error.errors[0];
+      code = (first && first.code) != null ? first.code : (body && body.error && body.error.code);
+      apiMsg = (first && first.message) || (body && body.error && body.error.message) || null;
+    }catch(_){}
+    const msg = translateApiMessage(code, apiMsg, r.status);
+    const e = new Error(msg); e.status = r.status; e.code = code; e.apiMessage = apiMsg; return e;
+  },
+
+  /* ----- Public endpoints used by the app ----- */
+
+  // POST /user/email/exists  -> { exists: bool }
+  async emailExists(email){
+    const res = await this._get('/user/email/exists', { email, vendor:CONFIG.VENDOR });
+    return !!res.exists;
+  },
+
+  // GET /user/cedula/exists -> { exists: bool } (mirrors /user/email/exists)
+  async cedulaExists(cedula){
+    const res = await this._get('/user/cedula/exists', { cedula, vendor:CONFIG.VENDOR });
+    return !!res.exists;
+  },
+
+  // POST /user/register -> user object (no session returned)
+  async register({first_name,last_name,email,password,cedula,birthdate,termsAccepted}){
+    return this._post('/user/register', {
+      first_name, last_name, anonymous:false,
+      email_address: email, password, terms: true,
+      vendor: CONFIG.VENDOR,
+      language: CONFIG.LANGUAGE,
+      cedula,
+      birthdate,                                  // unix seconds (optional)
+      contact_consent: termsAccepted ? CONFIG.CONSENT_FULL : 0
+    });
+  },
+
+  // POST /user/authenticate -> { session_identifier, user:{...} }
+  async authenticate(email, password){
+    return this._post('/user/authenticate', {
+      email_address: email, password, vendor: CONFIG.VENDOR
+    });
+  },
+
+  // GET /user/reward/list?session_key=...
+  // Real shape: { balances:[{id,name,balance}], data:[{id,name,cost,available,currency:{id,name},...}],
+  //               tier:{current,next,all}, page, total_pages, count }
+  async getRewards(session_key, page){
+    return this._get('/user/reward/list', { session_key, page: page||1, limit: 50 });
+  },
+
+  // POST /user/reward/redeem -> { code, ... }
+  // Real body uses vendor_perk_redemption_id (not spending_rule_id).
+  async redeemReward(session_key, vendor_perk_redemption_id, opts){
+    return this._post('/user/reward/redeem', Object.assign({
+      session_key, vendor:CONFIG.VENDOR, vendor_perk_redemption_id
+    }, opts||{}));
+  },
+
+  // GET /user/profile?session_key=...&vendor=...
+  // Returns a user_vendor object: { id, user:{id,first_name,last_name,email_address,phone_number,birthdate,address:{postal_code,region}},
+  //   contact_consent, language, status, is_verified:{status}, metadata:[{field,value}] }
+  async getProfile(session_key){
+    return this._get('/user/profile', { session_key, vendor:CONFIG.VENDOR });
+  },
+
+  // PUT /user/profile -> empty 200 body
+  // ⚠️ current_password ALWAYS required. Include ALL editable fields every call
+  // (first_name, last_name, email_address, phone_number:{number,code}, current_password, ...).
+  // ⚠️ birthdate is NOT accepted here.
+  async updateProfile(session_key, patch){
+    if(CONFIG.DEMO_MODE) return this._mock('/user/profile', patch, 'PUT');
+    const r = await fetch(this._url('/user/profile')+'?session_key='+encodeURIComponent(session_key), {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(Object.assign({ vendor:String(CONFIG.VENDOR) }, patch))
+    });
+    if(!r.ok){ throw await this._err(r); }
+    return this._safeJson(r);
+  },
+
+  // POST /user/token/request?session_key=... body:{ vendor, style, token_type }
+  // Returns { barcode, token }. Token is time-limited — regenerate on each scan-screen load.
+  async generatePaymentCode(session_key, { style='QR CODE', token_type=2 } = {}){
+    if(CONFIG.DEMO_MODE) return this._mock('/user/token/request', { session_key, style, token_type }, 'POST');
+    const r = await fetch(this._url('/user/token/request')+'?session_key='+encodeURIComponent(session_key), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ vendor:CONFIG.VENDOR, style, token_type })
+    });
+    if(!r.ok){ throw await this._err(r); }
+    return this._safeJson(r);
+  },
+
+  // GET /user/wallet/apple?session_key=...&vendor=... -> binary .pkpass (base64)
+  async getAppleWalletPass(session_key){
+    return this._get('/user/wallet/apple', { session_key, vendor:CONFIG.VENDOR });
+  },
+
+  // GET /user/wallet/google?session_key=...&vendor=... -> { jwt } (save url = https://pay.google.com/gp/v/save/<jwt>)
+  async getGoogleWalletPass(session_key){
+    return this._get('/user/wallet/google', { session_key, vendor:CONFIG.VENDOR });
+  },
+
+  // POST /user/password-reset/reset { email_address, vendor } -> empty 200 (Spoonity emails a reset token)
+  async requestReset(email){
+    return this._post('/user/password-reset/reset', { email_address:email, vendor:CONFIG.VENDOR });
+  },
+
+  // POST /user/password-reset/apply { token, password } -- min 6 chars, 1 upper, 1 lower, 1 digit
+  async applyPasswordReset(token, password){
+    return this._post('/user/password-reset/apply', { token, password });
+  },
+
+  // PUT /user/password?session_key=... { current_password, password, vendor } -- requires current password
+  async changePassword(session_key, current_password, password){
+    if(CONFIG.DEMO_MODE) return this._mock('/user/password', { current_password, password }, 'PUT');
+    const r = await fetch(this._url('/user/password')+'?session_key='+encodeURIComponent(session_key), {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ current_password, password, vendor:String(CONFIG.VENDOR) })
+    });
+    if(!r.ok){ throw await this._err(r); }
+    return this._safeJson(r);
+  },
+
+  // GET /vendor/{VENDOR}/customers/{userId}/history?session_key=...&page=...&limit=...
+  async getTransactions(session_key, userId, { page=1, limit=10 } = {}){
+    if(CONFIG.DEMO_MODE) return this._mock('/vendor/history', { session_key, page, limit }, 'GET');
+    return this._get('/vendor/'+CONFIG.VENDOR+'/customers/'+userId+'/history', { session_key, page, limit });
+  },
+
+  /* ================== DEMO MOCKS ==================
+     Shaped exactly like the real responses so the parser
+     and UI are identical in demo and production. */
+  _demoState: null,
+  _mock(path, body, method){
+    if(!this._demoState) this._demoState = JSON.parse(localStorage.getItem('padelEC_demo')||'null') || this._seedDemo();
+    const S = this._demoState;
+    const save = ()=> localStorage.setItem('padelEC_demo', JSON.stringify(S));
+
+    return new Promise((resolve,reject)=>{ setTimeout(()=>{
+      if(path==='/user/email/exists'){ return resolve({ exists: !!S.users[(body.email||'').toLowerCase()] }); }
+
+      if(path==='/user/register'){
+        const e=(body.email_address||'').toLowerCase();
+        if(S.users[e]){ const err=new Error('Este email ya tiene una cuenta.'); err.status=409; return reject(err); }
+        S.users[e]={ password:body.password, first_name:body.first_name, last_name:body.last_name,
+          cedula:body.cedula, member:'PE-'+Math.floor(100000+Math.random()*900000) };
+        // fresh member: welcome reward available, no points/visits yet
+        S.balances[e]=this._freshBalances();
+        save();
+        return resolve({ id:Math.floor(Math.random()*99999), email_address:e, status:{id:1,name:'Active'} });
+      }
+
+      if(path==='/user/authenticate'){
+        const e=(body.email_address||'').toLowerCase(); const u=S.users[e];
+        if(!u || u.password!==body.password){ const err=new Error('Email o contraseña incorrectos.'); err.status=401; return reject(err); }
+        const key='demo-'+btoa(e).replace(/=/g,'')+'-'+Date.now();
+        S.sessions[key]=e; save();
+        return resolve({ session_identifier:key, user:{ first_name:u.first_name, last_name:u.last_name, email_address:e, cedula:u.cedula } });
+      }
+
+      if(path==='/user/reward/list'){
+        const e=S.sessions[body.session_key]; if(!e){ const err=new Error('Sesión expirada.'); err.status=401; return reject(err); }
+        return resolve(this._buildRewardsList(S.balances[e]));
+      }
+
+      if(path==='/user/reward/redeem'){
+        const e=S.sessions[body.session_key]; const bal=S.balances[e];
+        const cur=String(body.currency);
+        if(cur===String(CONFIG.CURRENCY.POINTS)){
+          const rule=bal.points.spending_rules.find(r=>r.id===body.spending_rule_id);
+          if(!rule || bal.points.balance < rule.cost){ const err=new Error('Puntos insuficientes.'); err.status=400; return reject(err); }
+          bal.points.balance -= rule.cost;
+        } else {
+          // welcome / birthday: consume 1 available
+          const map={[CONFIG.CURRENCY.WELCOME]:'welcome',[CONFIG.CURRENCY.BIRTHDAY]:'birthday'};
+          const k=map[cur]; if(k && bal[k].available>0) bal[k].available -= 1;
+        }
+        save();
+        return resolve({ code:'PE-'+Math.random().toString(36).slice(2,8).toUpperCase() });
+      }
+
+      if(path==='/user/profile'){
+        const e=S.sessions[body.session_key]; // demo: ignore, just ok
+        return resolve({});
+      }
+
+      if(path==='/user/password-reset/reset'){ return resolve({ sent:true }); }
+      if(path==='/user/password-reset/apply'){ return resolve({}); }
+
+      if(path==='/vendor/history'){
+        const e=S.sessions[body.session_key]; if(!e){ const err=new Error('Sesión expirada.'); err.status=401; return reject(err); }
+        const now = Math.floor(Date.now()/1000);
+        const day = 86400;
+        const vendor = { vendor_id:1, name:'Padel Ecuador', address:'Av. Francisco de Orellana', city:'Guayaquil' };
+        const mockItems = [
+          { receipt_id:9001, receipt_date:now-1*day,  receipt_type:'Visita', subtotal:25.00, total:25.00, vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:25,  type:'Earn',status:'Active'},{currency:{currency_id:CONFIG.CURRENCY.VISITS,name:'Visitas'},amount:1,type:'Earn',status:'Active'}] },
+          { receipt_id:9002, receipt_date:now-4*day,  receipt_type:'Canje',  subtotal:0,     total:0,     vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:-300,type:'Spend',status:'Active',redemption:{name:'Llavero Padel EC'}}] },
+          { receipt_id:9003, receipt_date:now-8*day,  receipt_type:'Visita', subtotal:50.00, total:50.00, vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:50,  type:'Earn',status:'Active'},{currency:{currency_id:CONFIG.CURRENCY.VISITS,name:'Visitas'},amount:1,type:'Earn',status:'Active'}] },
+          { receipt_id:9004, receipt_date:now-12*day, receipt_type:'Visita', subtotal:30.00, total:30.00, vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:30,  type:'Earn',status:'Active'},{currency:{currency_id:CONFIG.CURRENCY.VISITS,name:'Visitas'},amount:1,type:'Earn',status:'Active'}] },
+          { receipt_id:9005, receipt_date:now-18*day, receipt_type:'Visita', subtotal:40.00, total:40.00, vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:40,  type:'Earn',status:'Active'},{currency:{currency_id:CONFIG.CURRENCY.VISITS,name:'Visitas'},amount:1,type:'Earn',status:'Active'}] },
+          { receipt_id:9006, receipt_date:now-25*day, receipt_type:'Canje',  subtotal:0,     total:0,     vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:-500,type:'Spend',status:'Active',redemption:{name:'Overgrip pro'}}] },
+          { receipt_id:9007, receipt_date:now-30*day, receipt_type:'Visita', subtotal:35.00, total:35.00, vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:35,  type:'Earn',status:'Active'},{currency:{currency_id:CONFIG.CURRENCY.VISITS,name:'Visitas'},amount:1,type:'Earn',status:'Active'}] },
+          { receipt_id:9008, receipt_date:now-38*day, receipt_type:'Visita', subtotal:20.00, total:20.00, vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:20,  type:'Earn',status:'Active'},{currency:{currency_id:CONFIG.CURRENCY.VISITS,name:'Visitas'},amount:1,type:'Earn',status:'Active'}] },
+          { receipt_id:9009, receipt_date:now-45*day, receipt_type:'Bono',   subtotal:0,     total:0,     vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:100, type:'Adjustment',status:'Active',perk:{name:'Bono de bienvenida'}}] },
+          { receipt_id:9010, receipt_date:now-52*day, receipt_type:'Visita', subtotal:45.00, total:45.00, vendor, loyalty:[{currency:{currency_id:CONFIG.CURRENCY.POINTS,name:'Puntos'},amount:45,  type:'Earn',status:'Active'},{currency:{currency_id:CONFIG.CURRENCY.VISITS,name:'Visitas'},amount:1,type:'Earn',status:'Active'}] },
+        ];
+        const page = Number(body.page)||1;
+        const limit = Number(body.limit)||10;
+        const start = (page-1)*limit;
+        return resolve({ data: mockItems.slice(start, start+limit), paging:{ next: start+limit < mockItems.length ? true : null, previous: page>1 ? true : null } });
+      }
+
+      resolve({});
+    }, 280); }); // simulated latency
+  },
+
+  _freshBalances(){
+    return {
+      points:   { currency_id:CONFIG.CURRENCY.POINTS, balance:0, spending_rules:this._catalog() },
+      welcome:  { currency_id:CONFIG.CURRENCY.WELCOME, available:1, name:'Premio de Bienvenida' },
+      birthday: { currency_id:CONFIG.CURRENCY.BIRTHDAY, available:0, name:'Regalo de Cumpleaños' },
+      visits:   { currency_id:CONFIG.CURRENCY.VISITS, balance:0 }
+    };
+  },
+
+  // The 15 spending rules for the points currency. Costs (500/1000/3000) drive tier grouping.
+  _catalog(){
+    return [
+      {id:5001, name:'Llavero Padel EC',         cost:500,  available:1, emoji:'🔑'},
+      {id:5002, name:'Snack del bar',            cost:500,  available:1, emoji:'🍌'},
+      {id:5003, name:'Bebida hidratante',        cost:500,  available:1, emoji:'🥤'},
+      {id:5004, name:'Overgrip pro',             cost:500,  available:1, emoji:'🪢'},
+      {id:5005, name:'Pack de stickers PE',      cost:500,  available:1, emoji:'✨'},
+      {id:5006, name:'Gorra Padel EC',           cost:1000, available:1, emoji:'🧢'},
+      {id:5007, name:'Toalla deportiva',         cost:1000, available:1, emoji:'🤍'},
+      {id:5008, name:'Combo bar',                cost:1000, available:1, emoji:'🍟'},
+      {id:5009, name:'Tubo de pelotas',          cost:1000, available:1, emoji:'🟡'},
+      {id:5010, name:'50% off en reserva',       cost:1000, available:1, emoji:'🎟️'},
+      {id:5011, name:'Clase de pádel 1:1',       cost:3000, available:1, emoji:'🏆'},
+      {id:5012, name:'Reserva de cancha gratis', cost:3000, available:1, emoji:'🆓'},
+      {id:5013, name:'Clínica para 4',           cost:3000, available:1, emoji:'👯'},
+      {id:5014, name:'Paletero Padel EC',        cost:3000, available:1, emoji:'🎒'},
+      {id:5015, name:'Jersey oficial',           cost:3000, available:1, emoji:'👕'}
+    ];
+  },
+
+  // Assemble a /user/reward/list payload: one node per currency.
+  _buildRewardsList(bal){
+    return [
+      { currency:{ id:CONFIG.CURRENCY.POINTS, name:'Puntos' }, balance:bal.points.balance,
+        data:{ spending_rules: bal.points.spending_rules } },
+      { currency:{ id:CONFIG.CURRENCY.WELCOME, name:'Bienvenida' }, balance:bal.welcome.available, available:bal.welcome.available,
+        data:{ spending_rules:[{ id:6001, name:bal.welcome.name, cost:0, available:bal.welcome.available }] } },
+      { currency:{ id:CONFIG.CURRENCY.BIRTHDAY, name:'Cumpleaños' }, balance:bal.birthday.available, available:bal.birthday.available,
+        data:{ spending_rules:[{ id:6002, name:bal.birthday.name, cost:0, available:bal.birthday.available }] } },
+      { currency:{ id:CONFIG.CURRENCY.VISITS, name:'Visitas' }, balance:bal.visits.balance, data:{ spending_rules:[] } }
+    ];
+  },
+
+  _seedDemo(){
+    const demoEmail='demo@padelecuador.com';
+    const S={ users:{}, sessions:{}, balances:{} };
+    S.users[demoEmail]={ password:'demo123', first_name:'Andrea', last_name:'Vélez', cedula:'0926687856', member:'PE-203741' };
+    S.balances[demoEmail]={
+      points:   { currency_id:CONFIG.CURRENCY.POINTS, balance:1250, spending_rules:this._catalog() },
+      welcome:  { currency_id:CONFIG.CURRENCY.WELCOME, available:1, name:'Premio de Bienvenida' },
+      birthday: { currency_id:CONFIG.CURRENCY.BIRTHDAY, available:1, name:'Regalo de Cumpleaños' },  // available => birthday animation fires
+      visits:   { currency_id:CONFIG.CURRENCY.VISITS, balance:7 }
+    };
+    localStorage.setItem('padelEC_demo', JSON.stringify(S));
+    return S;
+  }
+};
+
+/* ============================================================
+   Parser — turns /user/reward/list into the app's view model.
+   This is identical for demo and production.
+   ============================================================ */
+function parseRewards(res){
+  const C = CONFIG.CURRENCY;
+  const balances = res && res.balances || [];
+  const data = res && res.data || [];
+
+  const currencyIdOf = r => r.currency && r.currency.id;
+
+  const balanceFor = id => {
+    const b = balances.find(x=>Number(x.id)===id);
+    return b ? Number(b.balance)||0 : 0;
+  };
+
+  // Redeemable items for the points currency, grouped into tiers by cost.
+  const pointRewards = data.filter(r=>Number(currencyIdOf(r))===C.POINTS);
+  const tierMap = {};
+  pointRewards.forEach(r=>{
+    const cost = Number(r.cost)||0;
+    (tierMap[cost] = tierMap[cost] || []).push(r);
+  });
+  const tiers = Object.keys(tierMap).map(Number).sort((a,b)=>a-b).map((cost,idx)=>({
+    cost, rewards: tierMap[cost], name: cost.toLocaleString()+' puntos', emoji: tierEmoji(idx), icon: tierIcon(idx)
+  }));
+
+  // Welcome / birthday specials: data items on those currencies with available > 0.
+  const welcome = data.find(r=>Number(currencyIdOf(r))===C.WELCOME && Number(r.available)>0);
+  const birthday = data.find(r=>Number(currencyIdOf(r))===C.BIRTHDAY && Number(r.available)>0);
+
+  // Streak goal: cost of the "visitas" conversion rule — one racket "lap" = this many visits.
+  // The racha tracker reuses the VISITS balance directly; the backend resets it to 0
+  // after 3 days of inactivity, so the UI just renders whatever balance it's given.
+  const visitasRule = data.find(r=>Number(currencyIdOf(r))===C.VISITS);
+  const visitGoal = (visitasRule && Number(visitasRule.cost)) || CONFIG.VISIT_GOAL;
+
+  return {
+    points: balanceFor(C.POINTS),
+    tiers,
+    streak: balanceFor(C.VISITS),
+    visitGoal,
+    welcomeAvailable: welcome ? Number(welcome.available)||0 : 0,
+    birthdayAvailable: birthday ? Number(birthday.available)||0 : 0,
+    welcomeName: (welcome && welcome.name) || 'Premio de Bienvenida',
+    birthdayName: (birthday && birthday.name) || 'Regalo de Cumpleaños',
+    welcomeRuleId: welcome && welcome.id,
+    birthdayRuleId: birthday && birthday.id
+  };
+}
+const TIER_NAMES = ['Nivel Saque','Nivel Volea','Nivel Smash'];
+const REWARD_EMOJI_MAP = {
+  5001:'🔑', 5002:'🍌', 5003:'🥤', 5004:'__racket__', 5005:'✨',
+  5006:'🧢', 5007:'🤍', 5008:'🍟', 5009:'🟡', 5010:'🎟️',
+  5011:'🏆', 5012:'🆓', 5013:'👯', 5014:'🎒', 5015:'👕'
+};
+const REWARD_EMOJI_BY_NAME = {
+  'llavero padel ec':'🔑','llavero':'🔑',
+  'snack del bar':'🍌','snack':'🍌',
+  'bebida hidratante':'🥤','bebida':'🥤',
+  'overgrip pro':'__racket__','overgrip':'__racket__',
+  'pack de stickers pe':'✨','stickers':'✨',
+  'gorra padel ec':'🧢','gorra':'🧢',
+  'toalla deportiva':'🤍','toalla':'🤍',
+  'combo bar':'🍟','combo':'🍟',
+  'tubo de pelotas':'🟡','pelotas':'🟡',
+  '50% off en reserva':'🎟️','50%':'🎟️',
+  'clase de pádel 1:1':'🏆','clase':'🏆',
+  'reserva de cancha gratis':'🆓','reserva':'🆓',
+  'clínica para 4':'👯','clínica':'👯',
+  'paletero padel ec':'🎒','paletero':'🎒',
+  'jersey oficial':'👕','jersey':'👕',
+  '1 turno de cancha individual':'🎟️','turno de cancha':'🎟️',
+  'termo o camiseta':'👕','termo':'🧴','camiseta':'👕'
+};
+const RACKET_ICON_SVG = '<svg viewBox="0 0 120 168" width="36" height="50" style="color:var(--pe-blue)" aria-hidden="true"><path d="M60 6C90 6 116 26 116 56C116 86 102 104 86 112L72 124L72 154C72 159 67 161 60 161C53 161 48 159 48 154L48 124L34 112C18 104 4 86 4 56C4 26 30 6 60 6Z" fill="currentColor"/><g fill="#fff" opacity=".55"><circle cx="45" cy="40" r="6"/><circle cx="60" cy="40" r="6"/><circle cx="75" cy="40" r="6"/><circle cx="45" cy="58" r="6"/><circle cx="60" cy="58" r="6"/><circle cx="75" cy="58" r="6"/><circle cx="45" cy="76" r="6"/><circle cx="60" cy="76" r="6"/><circle cx="75" cy="76" r="6"/></g></svg>';
+const REWARD_IMG_KEYWORDS = [
+  {keys:['overgrip'], src:'assets/reward-overgrip.png'},
+  {keys:['cancha','reserva de cancha','court'], src:'assets/reward-cancha.png'},
+];
+function rewardImg(r){
+  const name=(r.name||'').toLowerCase();
+  const match=REWARD_IMG_KEYWORDS.find(m=>m.keys.some(k=>name.includes(k)));
+  return match?`<img src="${match.src}" alt="${r.name||''}">`:null;
+}
+function rewardEmoji(r){
+  const v = REWARD_EMOJI_MAP[r.id] || r.emoji || REWARD_EMOJI_BY_NAME[(r.name||'').toLowerCase()] || Object.entries(REWARD_EMOJI_BY_NAME).find(([k])=>(r.name||'').toLowerCase().includes(k))?.[1] || '🎁';
+  return v === '__racket__' ? RACKET_ICON_SVG : v;
+}
+const TIER_EMOJIS = ['🔑','🧢','🏆'];
+const TIER_SVGS = [
+  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3"/><path d="M6.2 17a6 6 0 0 1 11.6 0"/><line x1="12" y1="10" x2="12" y2="14"/></svg>',
+  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>'
+];
+function tierName(idx){ return TIER_NAMES[idx] || TIER_NAMES[TIER_NAMES.length-1]; }
+function tierEmoji(idx){ return TIER_EMOJIS[idx] || TIER_EMOJIS[TIER_EMOJIS.length-1]; }
+function tierIcon(idx){ return TIER_SVGS[idx] || TIER_SVGS[TIER_SVGS.length-1]; }
+
+/* ============================================================
+   Member code (generate_payment_code) — time-limited, regenerated
+   on each dashboard/scan screen load. Renders as an <img> when the
+   API returns a pre-rendered barcode, otherwise as a client QR
+   built from the raw token.
+   ============================================================ */
+async function renderMemberCode(containerId, size, tokenElId){
+  const box = $(containerId); if(!box || !SESSION) return;
+  box.innerHTML = '<p class="sub" style="padding:8px">Generando código…</p>';
+  const tokenEl = tokenElId ? $(tokenElId) : null;
+  if(tokenEl) tokenEl.textContent = '';
+  try{
+    const res = await SpoonityAPI.generatePaymentCode(SESSION.session_key, { style:'QR CODE', token_type:2 });
+    box.innerHTML = '';
+    if(res && res.barcode){
+      const img = document.createElement('img');
+      img.src = res.barcode; img.width = size; img.height = size; img.alt = 'Código del club';
+      box.appendChild(img);
+    } else if(res && res.token && window.QRCode){
+      new QRCode(box, { text: res.token, width:size, height:size, colorDark:'#0A5586', colorLight:'#ffffff' });
+    } else {
+      box.innerHTML = '<p class="sub">No pudimos generar tu código.</p>';
+    }
+    if(tokenEl && res && res.token) tokenEl.textContent = res.token;
+  }catch(e){
+    box.innerHTML = '<p class="sub">No pudimos generar tu código.</p>';
+  }
+}
+
+/* ============================================================
+   App state
+   ============================================================ */
+let SESSION = JSON.parse(localStorage.getItem(LS_SESSION)||'null');  // { session_key, email, ced, fn, ln, member }
+let VM = null;          // current parsed view model
+let prevState = { welcome:0, birthday:0 };
+
+function saveSession(s){ SESSION=s; localStorage.setItem(LS_SESSION, JSON.stringify(s)); }
+function clearSession(){ SESSION=null; localStorage.removeItem(LS_SESSION); }
+
+/* ---------- DOM helpers ---------- */
+function $(id){return document.getElementById(id)}
+function show(id){$(id).style.display='block'}
+function hide(id){$(id).style.display='none'}
+function setErr(id,msg){const el=$(id);if(!el)return;el.textContent=msg||'';el.style.display=msg?'block':'none'}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),2600)}
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo(0,0)}
+function busy(btn,on,label){ if(!btn)return; if(on){btn._t=btn.textContent;btn.textContent='Un momento…';btn.disabled=true;} else {btn.textContent=label||btn._t;btn.disabled=false;} }
+
+function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)}
+function validCedula(c){
+  if(!/^\d{10}$/.test(c))return false;
+  const prov=parseInt(c.slice(0,2),10);
+  if(!((prov>=1&&prov<=24)||prov===30))return false;
+  if(parseInt(c[2],10)>=6)return false;
+  const coef=[2,1,2,1,2,1,2,1,2];let sum=0;
+  for(let i=0;i<9;i++){let v=parseInt(c[i],10)*coef[i];if(v>9)v-=9;sum+=v}
+  const check=(10-(sum%10))%10;
+  return check===parseInt(c[9],10);
+}
+
+function confettiBurst(big){
+  const box=$('confetti');box.innerHTML='';
+  const colors=['#1581C5','#FFDE17','#0E6BA6','#FFF'];
+  const n=big?110:70;
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div');c.className='cf';
+    const s=6+Math.random()*(big?12:9);
+    c.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;background:${colors[i%4]};animation-duration:${1.6+Math.random()*1.8}s;animation-delay:${Math.random()*.5}s`;
+    if(i%3===0)c.style.borderRadius='2px';
+    box.appendChild(c);
+  }
+  setTimeout(()=>box.innerHTML='',4000);
+}
+
+/* ============================================================
+   AUTH: Login
+   ============================================================ */
+async function doLogin(btn){
+  const email=$('li-email').value.trim().toLowerCase(), pass=$('li-pass').value;
+  setErr('li-email-err','');setErr('li-pass-err','');
+  if(!validEmail(email))return setErr('li-email-err','Ingresa un email válido.');
+  if(!pass)return setErr('li-pass-err','Ingresa tu contraseña.');
+  busy(btn,true);
+  try{
+    const res = await SpoonityAPI.authenticate(email,pass);
+    const u = res.user||{};
+    saveSession({ session_key:res.session_identifier, email, ced:u.cedula||'',
+      fn:u.first_name||'Jugador', ln:u.last_name||'', member:'PE-'+(u.cedula? u.cedula.slice(-6):'000000') });
+    await enterApp();
+  }catch(e){
+    setErr('li-pass-err', e.message || 'No pudimos iniciar sesión.');
+  }finally{ busy(btn,false,'Iniciar sesión'); }
+}
+
+/* ============================================================
+   AUTH: Register (5 steps)
+   ============================================================ */
+let regData={};
+function startRegister(){regData={};showRegStep(1);goScreen('scr-register')}
+function showRegStep(n){
+  [1,2,3,4].forEach(i=>{
+    const el=$('reg-'+i);if(el)el.style.display=(i===n)?'block':'none';
+  });
+  /* 2-step progress bar */
+  const s1=$('stp1'),s2=$('stp2');
+  if(s1)s1.className=n>=1?(n>1?'done':'curr'):'';
+  if(s2)s2.className=n>=2?(n>2?'done':'curr'):'';
+  window.scrollTo(0,0);
+}
+function regBack(n){showRegStep(n)}
+
+async function regStep1(btn){
+  const e=$('rg-email').value.trim().toLowerCase(),p=$('rg-pass').value;
+  const fn=$('rg-fn').value.trim(),ln=$('rg-ln').value.trim();
+  ['rg-email-err','rg-pass-err','rg-fn-err','rg-ln-err'].forEach(x=>setErr(x,''));
+  if(!validEmail(e))return setErr('rg-email-err','Ingresa un email válido.');
+  if(p.length<6)return setErr('rg-pass-err','La contraseña debe tener mínimo 6 caracteres.');
+  if(fn.length<2)return setErr('rg-fn-err','Ingresa tus nombres.');
+  if(ln.length<2)return setErr('rg-ln-err','Ingresa tus apellidos.');
+  busy(btn,true);
+  try{
+    if(await SpoonityAPI.emailExists(e)){busy(btn,false,'Continuar');return setErr('rg-email-err','Este email ya tiene una cuenta. Inicia sesión.');}
+  }catch(err){ /* allow flow */ }
+  busy(btn,false,'Continuar');
+  regData.email=e;regData.pass=p;regData.fn=fn;regData.ln=ln;
+  showRegStep(2);
+}
+async function regStep2(btn){
+  const ced=$('rg-ced').value.trim(),phone=$('rg-phone').value.trim(),b=$('rg-bday').value;
+  const terms=$('rg-terms').checked;
+  ['rg-ced-err','rg-phone-err','rg-bday-err','rg-terms-err'].forEach(x=>setErr(x,''));
+  if(!validCedula(ced))return setErr('rg-ced-err','Cédula ecuatoriana no válida. Revisa los 10 dígitos.');
+  if(!/^0\d{9}$/.test(phone))return setErr('rg-phone-err','Ingresa un celular ecuatoriano válido (10 dígitos, empieza con 0).');
+  if(!b)return setErr('rg-bday-err','Selecciona tu fecha de nacimiento.');
+  const age=(Date.now()-new Date(b).getTime())/3.15576e10;
+  if(age<10||age>100)return setErr('rg-bday-err','Revisa la fecha ingresada.');
+  if(!terms)return setErr('rg-terms-err','Debes aceptar los términos para continuar.');
+  busy(btn,true);
+  try{
+    if(await SpoonityAPI.cedulaExists(ced)){busy(btn,false,'Crear cuenta');return setErr('rg-ced-err','Esta cédula ya tiene una cuenta. Inicia sesión.');}
+  }catch(err){ /* allow flow */ }
+  try{
+    const birthdate=Math.floor(new Date(b).getTime()/1000);
+    await SpoonityAPI.register({
+      first_name:regData.fn,last_name:regData.ln,email:regData.email,
+      password:regData.pass,cedula:ced,birthdate,termsAccepted:true
+    });
+    const res=await SpoonityAPI.authenticate(regData.email,regData.pass);
+    saveSession({session_key:res.session_identifier,email:regData.email,ced,
+      fn:regData.fn,ln:regData.ln,member:'PE-'+ced.slice(-6)});
+    await SpoonityAPI.updateProfile(SESSION.session_key,{
+      first_name:regData.fn,last_name:regData.ln,email_address:regData.email,
+      phone_number:{number:phone.replace(/^0/,''),code:'593'},
+      current_password:regData.pass
+    });
+    startOnboarding();
+  }catch(e){
+    busy(btn,false,'Crear cuenta');
+    if(e.status===409){showRegStep(1);return setErr('rg-email-err','Este email ya tiene una cuenta. Inicia sesión.');}
+    return setErr('rg-ced-err',e.message||'No pudimos crear tu cuenta. Intenta de nuevo.');
+  }
+}
+/* stubs for JS backward compat */
+function regStep3(){}
+async function regStep4(){}
+
+/* ============================================================
+   Onboarding (3 cards, shown once right after registration)
+   ============================================================ */
+let onbStep=0;
+function startOnboarding(){
+  onbStep=0; showOnbStep(0); goScreen('scr-onboarding');
+}
+function showOnbStep(n){
+  [0,1,2].forEach(i=>{ const el=$('onb-'+i); if(el) el.style.display=(i===n?'flex':'none'); });
+  [0,1,2].forEach(i=>{ const d=$('onb-dot-'+i); if(d) d.classList.toggle('on', i===n); });
+  const btn=$('onb-next-btn'); if(btn) btn.textContent = n>=2?'Empezar a jugar':'Siguiente';
+  window.scrollTo(0,0);
+}
+async function onbNext(){
+  if(onbStep<2){ onbStep++; showOnbStep(onbStep); return; }
+  await enterApp();
+  confettiBurst(true);
+  toast('¡Bienvenido/a al club!');
+}
+
+/* ============================================================
+   AUTH: Forgot password
+   ============================================================ */
+let fgEmail='';
+let fgToken='';
+async function fgStep1(btn){
+  setErr('fg-email-err','');
+  const e=$('fg-email').value.trim().toLowerCase();
+  if(!validEmail(e))return setErr('fg-email-err','Ingresa un email válido.');
+  busy(btn,true);
+  try{
+    await SpoonityAPI.requestReset(e);
+  }catch(err){
+    busy(btn,false,'Enviar código');
+    return setErr('fg-email-err', err.message||'No pudimos enviar el código.');
+  }
+  busy(btn,false,'Enviar código');
+  fgEmail=e;$('fg-email-show').textContent=e;
+  hide('fg-1');show('fg-2');
+}
+function fgStep2(){
+  setErr('fg-otp-err','');
+  const token=$('fg-token').value.trim();
+  if(!token)return setErr('fg-otp-err','Ingresa el código que recibiste por email.');
+  fgToken=token;
+  hide('fg-2');show('fg-3');
+}
+async function fgStep3(btn){
+  ['fg-pass-err','fg-pass2-err'].forEach(x=>setErr(x,''));
+  const p=$('fg-pass').value,p2=$('fg-pass2').value;
+  if(p.length<6)return setErr('fg-pass-err','Mínimo 6 caracteres.');
+  if(!/[A-Z]/.test(p)||!/[a-z]/.test(p)||!/[0-9]/.test(p))return setErr('fg-pass-err','Usa mayúscula, minúscula y un número.');
+  if(p!==p2)return setErr('fg-pass2-err','Las contraseñas no coinciden.');
+  busy(btn,true);
+  try{
+    await SpoonityAPI.applyPasswordReset(fgToken, p);
+    const res = await SpoonityAPI.authenticate(fgEmail, p);
+    const u=res.user||{};
+    saveSession({ session_key:res.session_identifier, email:fgEmail, ced:u.cedula||'',
+      fn:u.first_name||'Jugador', ln:u.last_name||'',
+      member:'PE-'+(u.cedula? u.cedula.slice(-6):'000000') });
+    hide('fg-3');show('fg-1');
+    await enterApp();
+    toast('Contraseña actualizada 🔒');
+  }catch(e){
+    setErr('fg-pass2-err', e.message||'No pudimos completar el cambio.');
+  }finally{ busy(btn,false,'Guardar y entrar'); }
+}
+
+/* ============================================================
+   App lifecycle
+   ============================================================ */
+async function enterApp(){
+  goScreen('scr-app');
+  await refresh(true);
+}
+function logout(){
+  clearSession();
+  goScreen('scr-login');
+  goPage('pg-home');
+}
+function goPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.pg===id));
+  /* sync desktop sidebar */
+  const snavMap={'pg-home':'snav-home','pg-rewards':'snav-rewards','pg-qr':'snav-qr','pg-historial':'snav-historial','pg-account':'snav-account'};
+  document.querySelectorAll('.snav-btn').forEach(b=>b.classList.remove('active'));
+  if(snavMap[id]){const sb=$(snavMap[id]);if(sb)sb.classList.add('active');}
+  window.scrollTo(0,0);
+  if(id==='pg-account'){ loadProfile(); }
+  if(id==='pg-historial'){ loadProfile().then(()=>loadTransactions(true)); }
+}
+
+async function refresh(animate){
+  if(!SESSION){ goScreen('scr-login'); return; }
+  try{
+    const res = await SpoonityAPI.getRewards(SESSION.session_key);
+    VM = parseRewards(res);
+  }catch(e){
+    if(e.status===401){ toast('Tu sesión expiró. Inicia sesión de nuevo.'); return logout(); }
+    toast('No pudimos cargar tus premios. Reintenta.');
+    return;
+  }
+  render(animate);
+  // Authoritative name source (/user/profile) — corrects the header/sidebar/avatar
+  // if SESSION.fn/ln were stale or came from a thin /user/authenticate response.
+  loadProfile();
+  // Special-reward animations: only when available > 0 and newly so
+  if(VM.birthdayAvailable>0 && prevState.birthday===0){ fireBirthday(); }
+  else if(VM.welcomeAvailable>0 && prevState.welcome===0){ confettiBurst(true); toast('🎁 ¡Tienes tu premio de bienvenida!'); }
+  prevState = { welcome:VM.welcomeAvailable, birthday:VM.birthdayAvailable };
+}
+
+/* ============================================================
+   Rendering
+   ============================================================ */
+const TIER_CLASS = {0:'t1',1:'t2',2:'t3'};
+
+function render(animate){
+  const s=SESSION, v=VM;
+  /* Header */
+  const h=new Date().getHours();
+  $('greet-time').textContent=h<12?'Buenos días':(h<19?'Buenas tardes':'Buenas noches');
+  $('greet-name').textContent=(s.fn||'Jugador').trim();
+  const initials=((s.fn||'P')[0]+((s.ln||'E')[0]||'E')).toUpperCase();
+  $('avatar').textContent=initials;
+  /* sidebar */
+  const sAvatar=$('sidebar-avatar');if(sAvatar)sAvatar.textContent=initials;
+  const sName=$('sidebar-name');if(sName)sName.textContent=(s.fn||'Jugador')+' '+(s.ln||'');
+  /* acc avatar */
+  const aAvatar=$('acc-avatar');if(aAvatar)aAvatar.textContent=initials;
+
+  /* Points */
+  animateCount($('pts-num'), v.points, animate?900:0);
+  const ptsDes=$('pts-desktop');if(ptsDes)ptsDes.textContent=v.points.toLocaleString();
+  const ptsPill=$('rewards-pts-pill');if(ptsPill)ptsPill.textContent=v.points.toLocaleString()+' pts';
+
+  /* Racha = VISITS currency (10346), reused directly as the streak count. */
+  renderStreak(v.streak, v.visitGoal);
+
+  /* Special rewards (welcome / birthday) shown only when available>0 */
+  renderSpecials();
+
+  /* Tiers + rewards from spending_rules (carousel per tier) */
+  $('tiers').innerHTML = v.tiers.map((t,idx)=>{
+    const ok = v.points>=t.cost;
+    const cls = TIER_CLASS[idx]||'t3';
+    const cid = 'carousel-'+idx;
+    return `<div class="tier ${cls} ${ok?'open':''}">
+      <div class="tier-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="th-l"><div class="tier-ball">${t.icon}</div>
+          <div><h4>${t.name}</h4><span class="pts">por canje</span></div></div>
+        <div class="th-r">
+          <span class="tier-state ${ok?'st-ok':'st-no'}">${ok?'Disponible':'Bloqueado'}</span>
+          <span class="tier-chevron">▾</span>
+        </div>
+      </div>
+      <div class="tier-body">
+        <div class="reward-carousel" id="${cid}" onscroll="syncDots('${cid}',${idx})">
+          ${t.rewards.map(r=>`
+            <div class="reward">
+              <div class="ri">${rewardImg(r)||rewardEmoji(r)}</div>
+              <div class="rt"><b>${r.name}</b><span>${ok?'Desbloqueado':'Bloqueado'}</span></div>
+              <button class="btn-redeem" ${ok&&r.available>0?'':'disabled'}
+                onclick="redeemPoints(${t.cost},'${(r.name||'').replace(/'/g,'')}','${t.emoji||'🎁'}')">
+                ${ok?(r.available>0?'Canjear':'Desbloqueado'):t.cost.toLocaleString()+' pts'}
+              </button>
+            </div>`).join('')}
+        </div>
+        <div class="carousel-dots" id="dots-${idx}">
+          ${t.rewards.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}
+        </div>
+        <p class="carousel-hint">Desliza para ver los ${t.rewards.length} premios →</p>
+      </div>
+    </div>`;
+  }).join('') || '<p class="sub" style="padding:14px">Cargando catálogo de premios…</p>';
+
+  /* QR */
+  renderMemberCode('qr-box',184,'qr-token');
+
+  /* Account (session-derived defaults; loadProfile() will overwrite with API data) */
+  $('acc-name').textContent=((s.fn||'')+' '+(s.ln||'')).trim();
+  $('acc-email').textContent=(s.email||'');
+}
+
+function renderSpecials(){
+  const v=VM, host=$('specials');
+  if(!host) return;
+  let html='';
+  if(v.welcomeAvailable>0){
+    html += specialCard('welcome','🎁',v.welcomeName,'Premio de bienvenida al club','Canjear', "goPage('pg-qr')");
+  }
+  if(v.birthdayAvailable>0){
+    html += specialCard('birthday','🎂',v.birthdayName,'¡Feliz cumpleaños de parte del club! 🎉','Canjear regalo', `redeemSpecial('birthday','${v.birthdayName.replace(/'/g,'')}','🎂')`);
+  }
+  host.innerHTML = html;
+  host.style.display = html?'block':'none';
+}
+function specialCard(kind,emoji,title,sub,cta,onclick){
+  return `<div class="special-card ${kind}">
+    <div class="sc-emoji">${emoji}</div>
+    <div class="sc-body"><b>${title}</b><span>${sub}</span></div>
+    <button class="btn-redeem" onclick="${onclick}">${cta}</button>
+  </div>`;
+}
+
+function animateCount(el,to,dur){
+  if(!dur){el.textContent=to.toLocaleString();return}
+  const from=parseInt(el.textContent.replace(/\D/g,''))||0;
+  const t0=performance.now();
+  (function step(t){
+    const p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(from+(to-from)*e).toLocaleString();
+    if(p<1)requestAnimationFrame(step);
+  })(performance.now());
+}
+
+/* Racha de visitas: balls = VISITS currency balance, reused directly as the streak count
+   (the backend resets it to 0 after 3 days without a visit — the UI just renders the value it gets).
+   One racket = `goal` balls (36). Past `goal`, a second racket appears; together they form a
+   72-ball span that cycles, counting cycles with a "×N vueltas" badge so the tracker never stalls. */
+const HOLE_POS=[
+  [40,28],[53,28],[67,28],[80,28],
+  [28,42],[40,42],[53,42],[67,42],[80,42],[92,42],
+  [14,55],[28,55],[40,55],[53,55],[67,55],[80,55],[92,55],[106,55],
+  [14,69],[28,69],[40,69],[53,69],[67,69],[80,69],[92,69],[106,69],
+  [28,82],[40,82],[53,82],[67,82],[80,82],[92,82],
+  [40,96],[53,96],[67,96],[80,96]
+];
+function buildRacketSVG(litCount, widthPx){
+  const holes = HOLE_POS.map(p=>
+    `<circle cx="${p[0]}" cy="${p[1]}" r="5.2" fill="#DCE9F2"/>`
+  ).join('');
+  const lit = HOLE_POS.slice(0, Math.max(0,litCount)).map(p=>
+    `<circle cx="${p[0]}" cy="${p[1]}" r="5.2" fill="var(--pe-yellow)"/>`
+  ).join('');
+  return `<svg viewBox="0 0 120 168" style="width:${widthPx}px;display:block" aria-label="Racha de visitas">
+    <path d="M60 6C90 6 116 26 116 56C116 86 102 104 86 112L72 124L72 154C72 159 67 161 60 161C53 161 48 159 48 154L48 124L34 112C18 104 4 86 4 56C4 26 30 6 60 6Z" fill="#fff" stroke="var(--pe-blue)" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M46 112 L60 122 L74 112 M60 122 L60 128" fill="none" stroke="var(--pe-blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/>
+    <line x1="55" y1="136" x2="65" y2="136" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" opacity=".22"/>
+    <line x1="55" y1="142" x2="65" y2="142" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" opacity=".22"/>
+    <line x1="55" y1="148" x2="65" y2="148" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" opacity=".22"/>
+    <g>${holes}${lit}</g>
+  </svg>`;
+}
+function bestStreakKey(){ return 'padelEC_bestStreak_'+((SESSION&&SESSION.email)||''); }
+function lastStreakSeenKey(){ return 'padelEC_lastStreakSeen_'+((SESSION&&SESSION.email)||''); }
+function updateBestStreak(streak){
+  const k=bestStreakKey();
+  const best=Math.max(parseInt(localStorage.getItem(k)||'0',10), streak);
+  localStorage.setItem(k, String(best));
+  return best;
+}
+function renderStreak(streak, goal){
+  goal = goal || CONFIG.VISIT_GOAL;
+  streak = Math.max(0, streak||0);
+  const setSize = goal*2;
+  let laps = Math.floor(streak/setSize);
+  let rem = streak - laps*setSize;
+  if(rem===0 && streak>0){ laps -= 1; rem = setSize; }
+  const twoRackets = streak > goal;
+  const lit = n => Math.max(0, Math.min(goal, n));
+  const wrap=$('racket-wrap'), host=$('racket-rackets-host');
+  if(twoRackets){
+    wrap.style.width='132px';
+    host.innerHTML = buildRacketSVG(lit(rem), 58) + buildRacketSVG(lit(rem-goal), 58);
+  } else {
+    wrap.style.width='104px';
+    host.innerHTML = buildRacketSVG(lit(streak), 104);
+  }
+  $('lap-badge-host').innerHTML = laps>0 ? `<span class="lap-badge">×${laps} ${laps===1?'vuelta':'vueltas'}</span>` : '';
+  $('racket-caption').textContent = 'Racha de '+streak+(streak===1?' visita':' visitas');
+  const best = updateBestStreak(streak);
+  $('racket-best').textContent = 'Mejor racha: '+best;
+  const lastSeen = parseInt(localStorage.getItem(lastStreakSeenKey())||'0',10);
+  if(streak>0 && streak%goal===0 && streak>lastSeen){ confettiBurst(); }
+  localStorage.setItem(lastStreakSeenKey(), String(streak));
+}
+
+/* ============================================================
+   Redemptions
+   ============================================================ */
+function redeemPoints(cost, name, emoji){
+  if(VM.points < cost) return toast('Aún no tienes '+cost.toLocaleString()+' puntos para este premio.');
+  confettiBurst();
+  toast(emoji+' Muestra tu código QR en recepción para canjear: '+name);
+  goPage('pg-qr');
+}
+function redeemSpecial(kind, name, emoji){
+  if(kind==='birthday') fireBirthday(); else confettiBurst(true);
+  toast(emoji+' Muestra tu código QR en recepción para canjear: '+name);
+  goPage('pg-qr');
+}
+/* Promo carousel: highlight the active dot based on scroll position */
+function syncPromoDots(){
+  const el=$('promo-carousel'), dots=$('promo-dots'); if(!el||!dots)return;
+  const cards=el.children.length; if(!cards)return;
+  const idx=Math.round(el.scrollLeft / (el.scrollWidth / cards));
+  [...dots.children].forEach((d,i)=>d.classList.toggle('on', i===Math.min(idx,cards-1)));
+}
+
+/* Carousel: highlight the active dot based on scroll position */
+function syncDots(carouselId, tierIdx){
+  const el=$(carouselId); if(!el)return;
+  const dots=$('dots-'+tierIdx); if(!dots)return;
+  const cards=el.children.length; if(!cards)return;
+  const idx=Math.round(el.scrollLeft / (el.scrollWidth / cards));
+  [...dots.children].forEach((d,i)=>d.classList.toggle('on', i===Math.min(idx,cards-1)));
+}
+
+/* Birthday: dedicated festive animation (balloons + gold confetti + banner) */
+function fireBirthday(){
+  confettiBurst(true);
+  const layer=$('bday-layer');
+  layer.innerHTML='';
+  const emojis=['🎂','🎈','🎉','🥳','🎁','⭐'];
+  for(let i=0;i<18;i++){
+    const b=document.createElement('div');b.className='balloon';
+    b.textContent=emojis[i%emojis.length];
+    b.style.cssText=`left:${5+Math.random()*90}%;font-size:${26+Math.random()*22}px;animation-duration:${3+Math.random()*2.5}s;animation-delay:${Math.random()*1.2}s`;
+    layer.appendChild(b);
+  }
+  $('bday-banner').classList.add('show');
+  layer.classList.add('show');
+  setTimeout(()=>{ layer.classList.remove('show'); $('bday-banner').classList.remove('show'); layer.innerHTML=''; }, 5200);
+}
+
+/* ============================================================
+   Wallet
+   ============================================================ */
+function openWallet(){
+  const s=SESSION; if(!s)return;
+  $('wp-name').textContent=(s.fn||'')+' '+((s.ln||'').split(' ')[0]||'');
+  $('wp-pts').textContent=(VM?VM.points:0).toLocaleString();
+  $('wp-num').textContent=s.member||'';
+  renderMemberCode('wp-qr',120);
+  $('wallet-bg').classList.add('open');
+}
+function closeWallet(){$('wallet-bg').classList.remove('open')}
+
+// Real wallet pass generation: Apple returns a base64 .pkpass (downloaded with the
+// pkpass MIME type so iOS offers to add it to Wallet); Google returns a JWT used
+// to build the official "Save to Google Wallet" link.
+async function addToWallet(which){
+  if(!SESSION)return;
+  const isApple = which.indexOf('Apple')>=0;
+  try{
+    if(isApple){
+      const res = await SpoonityAPI.getAppleWalletPass(SESSION.session_key);
+      const b64 = res && (res.data || res.pkpass || res.file);
+      if(!b64) throw new Error('Sin datos de pase.');
+      const bytes = atob(b64);
+      const arr = new Uint8Array(bytes.length);
+      for(let i=0;i<bytes.length;i++) arr[i]=bytes.charCodeAt(i);
+      const blob = new Blob([arr], { type:'application/vnd.apple.pkpass' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='padelecuador.pkpass';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    } else {
+      const res = await SpoonityAPI.getGoogleWalletPass(SESSION.session_key);
+      const jwt = res && (res.jwt || res.token || res.save_url);
+      if(!jwt) throw new Error('Sin token de Google Wallet.');
+      const url = jwt.indexOf('http')===0 ? jwt : 'https://pay.google.com/gp/v/save/'+jwt;
+      window.open(url, '_blank');
+    }
+    closeWallet(); confettiBurst();
+    toast('💳 ¡Tarjeta agregada a '+which+'!');
+  }catch(e){
+    toast('No pudimos generar tu tarjeta de '+which+'. Intenta de nuevo.');
+  }
+}
+
+/* ============================================================
+   Account: profile (get_profile / update_profile / change_password)
+   ============================================================ */
+let PROFILE=null;
+function toggleFaq(){const c=$('faq-card');c.style.display=c.style.display==='none'?'block':'none';hide('edit-card')}
+
+async function loadProfile(){
+  if(!SESSION)return;
+  try{
+    PROFILE = await SpoonityAPI.getProfile(SESSION.session_key);
+    const u = (PROFILE && PROFILE.user) || {};
+    // /user/profile is the authoritative source for the socio's name — correct any
+    // stale SESSION.fn/ln (e.g. captured from a thin /user/authenticate response)
+    // and propagate it to every name-derived element, not just the Cuenta page.
+    if(u.first_name || u.last_name){
+      SESSION.fn = u.first_name || SESSION.fn;
+      SESSION.ln = u.last_name || SESSION.ln;
+      saveSession(SESSION);
+    }
+    const fullName=(u.first_name||SESSION.fn||'')+' '+(u.last_name||SESSION.ln||'');
+    $('acc-name').textContent=fullName.trim();
+    const ini=((SESSION.fn||'P')[0]+((SESSION.ln||'E')[0]||'E')).toUpperCase();
+    const aAvatar=$('acc-avatar');if(aAvatar)aAvatar.textContent=ini;
+    $('acc-email').textContent=(u.email_address||SESSION.email||'');
+    $('acc-phone').textContent = u.phone_number ? '+'+u.phone_number : '';
+    const phoneRow=$('acc-phone-row');if(phoneRow)phoneRow.style.display=u.phone_number?'flex':'none';
+    const verified = PROFILE.is_verified && PROFILE.is_verified.status;
+    $('acc-status').style.display='none';
+    // Refresh header + sidebar (avatar initials, greeting name) with the corrected identity.
+    const headerAvatar=$('avatar'); if(headerAvatar) headerAvatar.textContent=ini;
+    const greetName=$('greet-name'); if(greetName) greetName.textContent=(SESSION.fn||'Jugador').trim();
+    const sAvatar=$('sidebar-avatar'); if(sAvatar) sAvatar.textContent=ini;
+    const sName=$('sidebar-name'); if(sName) sName.textContent=(SESSION.fn||'Jugador')+' '+(SESSION.ln||'');
+  }catch(e){ /* keep showing session-derived info if profile fails */ }
+}
+
+function openEdit(){
+  hide('faq-card');show('edit-card');
+  const u = (PROFILE && PROFILE.user) || {};
+  $('ed-fn').value = u.first_name || SESSION.fn || '';
+  $('ed-ln').value = u.last_name || SESSION.ln || '';
+  $('ed-email').value = u.email_address || SESSION.email || '';
+  $('ed-phone').value = u.phone_number ? String(u.phone_number).replace(/^593/,'0') : '';
+  $('ed-pass1').value=''; $('ed-pass0').value='';
+  ['ed-fn-err','ed-ln-err','ed-email-err','ed-phone-err','ed-pass0-err','ed-pass1-err'].forEach(x=>setErr(x,''));
+}
+
+async function saveProfile(){
+  ['ed-fn-err','ed-ln-err','ed-email-err','ed-phone-err','ed-pass0-err','ed-pass1-err'].forEach(x=>setErr(x,''));
+  const fn=$('ed-fn').value.trim(), ln=$('ed-ln').value.trim();
+  const email=$('ed-email').value.trim().toLowerCase();
+  const phone=$('ed-phone').value.trim();
+  const newPass=$('ed-pass1').value, currentPass=$('ed-pass0').value;
+  if(fn.length<2)return setErr('ed-fn-err','Ingresa tus nombres.');
+  if(ln.length<2)return setErr('ed-ln-err','Ingresa tus apellidos.');
+  if(!validEmail(email))return setErr('ed-email-err','Ingresa un email válido.');
+  if(!/^0\d{9}$/.test(phone))return setErr('ed-phone-err','Celular ecuatoriano válido (10 dígitos, empieza con 0).');
+  if(!currentPass)return setErr('ed-pass0-err','Ingresa tu contraseña actual para guardar.');
+  if(newPass && newPass.length<6)return setErr('ed-pass1-err','Mínimo 6 caracteres.');
+  try{
+    await SpoonityAPI.updateProfile(SESSION.session_key, {
+      first_name:fn, last_name:ln, email_address:email,
+      phone_number:{ number:phone.replace(/^0/,''), code:'593' },
+      current_password:currentPass
+    });
+    if(newPass) await SpoonityAPI.changePassword(SESSION.session_key, currentPass, newPass);
+    SESSION.email=email; SESSION.fn=fn; SESSION.ln=ln; saveSession(SESSION);
+    hide('edit-card');
+    await loadProfile();
+    render(false);
+    toast('Datos actualizados ✅');
+  }catch(err){ setErr('ed-pass0-err', err.message||'No pudimos guardar los cambios.'); }
+}
+
+/* ============================================================
+   Account: transaction history (get_transactions)
+   ============================================================ */
+let TX_PAGE=1, TX_LOADING=false;
+async function loadTransactions(reset){
+  if(!SESSION || !PROFILE)return;
+  const userId = PROFILE.user && PROFILE.user.id;
+  if(!userId)return;
+  if(reset){ TX_PAGE=1; $('tx-list').innerHTML='<p class="sub">Cargando…</p>'; }
+  if(TX_LOADING)return; TX_LOADING=true;
+  try{
+    const res = await SpoonityAPI.getTransactions(SESSION.session_key, userId, { page:TX_PAGE, limit:10 });
+    const items = (res && (res.data || res.transactions)) || [];
+    if(reset) $('tx-list').innerHTML='';
+    if(!items.length && TX_PAGE===1){ $('tx-list').innerHTML='<p class="sub">Aún no tienes movimientos.</p>'; }
+    $('tx-list').insertAdjacentHTML('beforeend', items.map(renderTxItem).join(''));
+    const hasMore = res && res.total_pages ? TX_PAGE < res.total_pages : items.length===10;
+    $('tx-more').style.display = hasMore ? 'block' : 'none';
+    if(hasMore) TX_PAGE++;
+  }catch(e){
+    if(reset) $('tx-list').innerHTML='<p class="sub">No pudimos cargar tu historial.</p>';
+  }finally{ TX_LOADING=false; }
+}
+const TX_RACKET_ICON = '<svg viewBox="0 0 120 168" width="22" height="30" style="color:var(--pe-blue);flex:none" aria-hidden="true"><path d="M60 6C90 6 116 26 116 56C116 86 102 104 86 112L72 124L72 154C72 159 67 161 60 161C53 161 48 159 48 154L48 124L34 112C18 104 4 86 4 56C4 26 30 6 60 6Z" fill="currentColor"/><g fill="#fff" opacity=".55"><circle cx="45" cy="40" r="6"/><circle cx="60" cy="40" r="6"/><circle cx="75" cy="40" r="6"/><circle cx="45" cy="58" r="6"/><circle cx="60" cy="58" r="6"/><circle cx="75" cy="58" r="6"/><circle cx="45" cy="76" r="6"/><circle cx="60" cy="76" r="6"/><circle cx="75" cy="76" r="6"/></g></svg>';
+function renderTxItem(tx){
+  const ts = tx.receipt_date || tx.date_created;
+  const date = ts ? new Date(ts*1000).toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'}) : '';
+  const vendorName = ((tx.vendor && tx.vendor.name) || 'Padel Ecuador').trim();
+  const loyalty = tx.loyalty || [];
+  const curId = l => l.currency && (Number(l.currency.currency_id) || Number(l.currency.id));
+
+  // Sum amounts per currency across all loyalty entries
+  const currencyTotals = {};
+  loyalty.forEach(l => {
+    const id = curId(l); if(!id) return;
+    const name = ((l.currency && l.currency.name) || '').trim();
+    if(!currencyTotals[id]) currencyTotals[id] = { name, amount: 0 };
+    currencyTotals[id].amount += Number(l.amount) || 0;
+  });
+
+  const isRedeem = loyalty.some(l => /spend|redeem/i.test(l.type||''));
+  const isBonus  = loyalty.some(l => /adjust/i.test(l.type||''));
+  const TX_GIFT_ICON = '<span style="width:36px;height:36px;border-radius:50%;background:rgba(255,222,23,.35);display:flex;align-items:center;justify-content:center;flex:none;color:#0A5586"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>';
+  const TX_STAR_ICON = '<span style="width:36px;height:36px;border-radius:50%;background:rgba(21,129,197,.12);display:flex;align-items:center;justify-content:center;flex:none;color:var(--pe-blue)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>';
+  const icon = isRedeem ? TX_GIFT_ICON : isBonus ? TX_STAR_ICON : TX_RACKET_ICON;
+
+  const total = tx.total && Number(tx.total) > 0 ? Number(tx.total).toFixed(2) : '';
+  const details = [];
+  if(total) details.push(`<span style="color:var(--pe-grey)">Total $${total}</span>`);
+  Object.values(currencyTotals).forEach(c => {
+    if(!c.amount) return;
+    const sign = c.amount > 0 ? '+' : '';
+    const color = c.amount > 0 ? 'var(--pe-blue)' : '#E5484D';
+    details.push(`<span style="color:${color};font-weight:700">${sign}${c.amount.toLocaleString()} ${c.name}</span>`);
+  });
+
+  return `<div class="menu-item" style="align-items:flex-start;flex-direction:column;gap:6px">
+    <div style="display:flex;align-items:center;gap:8px">
+      ${icon}
+      <span style="display:flex;flex-direction:column;min-width:0">
+        <b>${vendorName}</b>
+        <span class="sub" style="font-size:12px">${date}${total?' · $'+total:''}</span>
+      </span>
+    </div>
+    ${details.length ? `<div style="display:flex;flex-wrap:wrap;gap:10px;padding-left:30px">${details.join('')}</div>` : ''}
+  </div>`;
+}
+
+/* ---------- Modal backdrops ---------- */
+document.addEventListener('click',e=>{
+  if(e.target===$('wallet-bg'))closeWallet();
+});
+
+/* ---------- Boot ---------- */
+if(SESSION){ enterApp(); }
+
+</script>
+</body>
+</html>
