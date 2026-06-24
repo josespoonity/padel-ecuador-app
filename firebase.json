@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "public": "app",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "/api/spoonity/**", "function": "spoonityProxy" },
+      { "source": "/health", "function": "spoonityProxy" }
+    ]
+  },
+  "functions": {
+    "source": "proxy"
+  }
+}

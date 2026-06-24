@@ -4,7 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Padel Ecuador · Club de Puntos</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!--
+  CSP via <meta> can't enforce frame-ancestors (clickjacking) or other response-header-only
+  directives — the browser ignores those when set this way. For real clickjacking protection,
+  set `Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options: DENY` as actual
+  HTTP response headers at the hosting layer (Netlify/Vercel/Cloudflare _headers config, etc.)
+  — GitHub Pages alone cannot set custom headers.
+  connect-src allows localhost (any port, for local proxy dev) and https: (any deployed proxy
+  domain, since that's not finalized yet) — once the real production proxy domain is fixed,
+  tighten this to that exact origin instead of the broad `https:` wildcard.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Poppins:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -579,7 +591,7 @@ input{font-family:inherit}
           <p class="hint" id="rg-email-suggest" style="display:none;color:var(--pe-blue);cursor:pointer"></p>
         </div>
         <div class="field"><label>Contraseña</label>
-          <input type="password" id="rg-pass" placeholder="Mínimo 6 caracteres"><p class="err" id="rg-pass-err"></p></div>
+          <input type="password" id="rg-pass" placeholder="Mín. 6 caracteres, con mayúscula, minúscula y número"><p class="err" id="rg-pass-err"></p></div>
         <div class="field"><label>Nombres</label>
           <input type="text" id="rg-fn" placeholder="María José"><p class="err" id="rg-fn-err"></p></div>
         <div class="field"><label>Apellidos</label>
@@ -972,7 +984,7 @@ input{font-family:inherit}
               <span class="mi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
               Preguntas frecuentes<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </button>
-            <button class="menu-item" onclick="window.open('https://wa.me/593999999999?text=Hola%20Padel%20Ecuador','_blank')">
+            <button class="menu-item" onclick="window.open('https://wa.me/593999999999?text=Hola%20Padel%20Ecuador','_blank','noopener,noreferrer')">
               <span class="mi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
               WhatsApp<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </button>
@@ -1050,9 +1062,11 @@ input{font-family:inherit}
       <div class="wpass-qr"><div id="wp-qr"></div></div>
       <p class="wpass-num" id="wp-num"></p>
     </div>
-    <div class="wallet-btns">
-      <button class="wallet-btn" onclick="addToWallet('Apple Wallet')"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>Apple Wallet</button>
-      <button class="wallet-btn gw" onclick="addToWallet('Google Wallet')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Google Wallet</button>
+    <div class="wallet-btns" style="grid-template-columns:1fr">
+      <button class="wallet-btn" onclick="addToWallet()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Añadir a Wallet
+      </button>
     </div>
     <button class="btn btn-ghost mt8" onclick="closeWallet()">Quizás después</button>
   </div>
@@ -1077,7 +1091,13 @@ input{font-family:inherit}
 const CONFIG = {
   // Toggle DEMO_MODE=false once the proxy is live. When false, calls go to PROXY_BASE.
   DEMO_MODE: false,
-  PROXY_BASE: 'https://api.spoonity.com',          // direct to Spoonity (may hit CORS in the browser)
+  // ⚠️ Must point at YOUR deployed proxy (see proxy/README.md), never directly at
+  // Spoonity — the proxy is what injects vendor/language server-side and avoids
+  // CORS. This local-dev default WILL fail in production.
+  // Deployed via Firebase Hosting + the spoonityProxy function? Use the relative
+  // path below instead — same origin via the Hosting rewrite, no CORS needed:
+  //   PROXY_BASE: '/api/spoonity',
+  PROXY_BASE: 'http://localhost:8787/api/spoonity',
   VENDOR: 2112777,
   LANGUAGE: 3,                          // 3 = Spanish
   CONSENT_FULL: 3,                      // 3 = email + SMS when T&C accepted
@@ -1091,7 +1111,7 @@ const CONFIG = {
   VISIT_GOAL: 36                        // fallback goal if the visitas spending rule has no cost
 };
 
-const LS_SESSION = 'padelEC_session';   // stores { session_key, email, ced, fn, ln, member }
+const LS_SESSION = 'padelEC_session';   // stores { session_key, email, fn, ln, member } — no cedula: it's never read back, only used transiently to derive `member`
 
 /* ------------------------------------------------------------
    API error translation — Spoonity returns its `error.errors[].message`
@@ -1122,6 +1142,15 @@ function translateApiMessage(code, apiMsg, status){
   if(status === 409) return 'Este dato ya tiene una cuenta registrada.';
   if(status >= 500) return 'Servicio no disponible por el momento. Reintenta en unos minutos.';
   return 'Ocurrió un error. Inténtalo de nuevo.';
+}
+
+// Non-cryptographic digest used ONLY by the local demo mock (no real account behind
+// it) so plaintext passwords typed during a demo don't sit in localStorage verbatim.
+function demoHash(s){
+  let h = 5381;
+  s = String(s||'');
+  for(let i=0;i<s.length;i++){ h = ((h*33) ^ s.charCodeAt(i)) >>> 0; }
+  return h.toString(36);
 }
 
 /* ============================================================
@@ -1219,11 +1248,11 @@ const SpoonityAPI = {
     }, opts||{}));
   },
 
-  // GET /user/profile?session_key=...&vendor=...
-  // Returns a user_vendor object: { id, user:{id,first_name,last_name,email_address,phone_number,birthdate,address:{postal_code,region}},
-  //   contact_consent, language, status, is_verified:{status}, metadata:[{field,value}] }
+  // GET /user/profile?session_key=... (no vendor param — session_key alone identifies the account)
+  // Returns: { id, user:{first_name,last_name,email_address,phone_number,birthdate,address,...},
+  //   contact_consent, language, status, is_verified:{...}, metadata:[...], anonymous, created, updated, ... }
   async getProfile(session_key){
-    return this._get('/user/profile', { session_key, vendor:CONFIG.VENDOR });
+    return this._get('/user/profile', { session_key });
   },
 
   // PUT /user/profile -> empty 200 body
@@ -1251,15 +1280,9 @@ const SpoonityAPI = {
     return this._safeJson(r);
   },
 
-  // GET /user/wallet/apple?session_key=...&vendor=... -> binary .pkpass (base64)
-  async getAppleWalletPass(session_key){
-    return this._get('/user/wallet/apple', { session_key, vendor:CONFIG.VENDOR });
-  },
-
-  // GET /user/wallet/google?session_key=...&vendor=... -> { jwt } (save url = https://pay.google.com/gp/v/save/<jwt>)
-  async getGoogleWalletPass(session_key){
-    return this._get('/user/wallet/google', { session_key, vendor:CONFIG.VENDOR });
-  },
+  // Wallet enrollment is a direct link (see buildWalletEnrollUrl below), not an
+  // API call through this object — /user/wallet/apple and /user/wallet/google
+  // don't exist on Spoonity's real API (confirmed: both return "No route found").
 
   // POST /user/password-reset/reset { email_address, vendor } -> empty 200 (Spoonity emails a reset token)
   async requestReset(email){
@@ -1303,7 +1326,7 @@ const SpoonityAPI = {
       if(path==='/user/register'){
         const e=(body.email_address||'').toLowerCase();
         if(S.users[e]){ const err=new Error('Este email ya tiene una cuenta.'); err.status=409; return reject(err); }
-        S.users[e]={ password:body.password, first_name:body.first_name, last_name:body.last_name,
+        S.users[e]={ passwordHash:demoHash(body.password), first_name:body.first_name, last_name:body.last_name,
           cedula:body.cedula, member:'PE-'+Math.floor(100000+Math.random()*900000) };
         // fresh member: welcome reward available, no points/visits yet
         S.balances[e]=this._freshBalances();
@@ -1313,7 +1336,7 @@ const SpoonityAPI = {
 
       if(path==='/user/authenticate'){
         const e=(body.email_address||'').toLowerCase(); const u=S.users[e];
-        if(!u || u.password!==body.password){ const err=new Error('Email o contraseña incorrectos.'); err.status=401; return reject(err); }
+        if(!u || u.passwordHash!==demoHash(body.password)){ const err=new Error('Email o contraseña incorrectos.'); err.status=401; return reject(err); }
         const key='demo-'+btoa(e).replace(/=/g,'')+'-'+Date.now();
         S.sessions[key]=e; save();
         return resolve({ session_identifier:key, user:{ first_name:u.first_name, last_name:u.last_name, email_address:e, cedula:u.cedula } });
@@ -1421,7 +1444,7 @@ const SpoonityAPI = {
   _seedDemo(){
     const demoEmail='demo@padelecuador.com';
     const S={ users:{}, sessions:{}, balances:{} };
-    S.users[demoEmail]={ password:'demo123', first_name:'Andrea', last_name:'Vélez', cedula:'0926687856', member:'PE-203741' };
+    S.users[demoEmail]={ passwordHash:demoHash('demo123'), first_name:'Andrea', last_name:'Vélez', cedula:'0926687856', member:'PE-203741' };
     S.balances[demoEmail]={
       points:   { currency_id:CONFIG.CURRENCY.POINTS, balance:1250, spending_rules:this._catalog() },
       welcome:  { currency_id:CONFIG.CURRENCY.WELCOME, available:1, name:'Premio de Bienvenida' },
@@ -1516,7 +1539,7 @@ const REWARD_IMG_KEYWORDS = [
 function rewardImg(r){
   const name=(r.name||'').toLowerCase();
   const match=REWARD_IMG_KEYWORDS.find(m=>m.keys.some(k=>name.includes(k)));
-  return match?`<img src="${match.src}" alt="${r.name||''}">`:null;
+  return match?`<img src="${match.src}" alt="${escapeHtml(r.name||'')}">`:null;
 }
 function rewardEmoji(r){
   const v = REWARD_EMOJI_MAP[r.id] || r.emoji || REWARD_EMOJI_BY_NAME[(r.name||'').toLowerCase()] || Object.entries(REWARD_EMOJI_BY_NAME).find(([k])=>(r.name||'').toLowerCase().includes(k))?.[1] || '🎁';
@@ -1564,15 +1587,32 @@ async function renderMemberCode(containerId, size, tokenElId){
 /* ============================================================
    App state
    ============================================================ */
-let SESSION = JSON.parse(localStorage.getItem(LS_SESSION)||'null');  // { session_key, email, ced, fn, ln, member }
+const SESSION_MAX_AGE_MS = 30*24*60*60*1000; // 30 days — stale sessions self-expire from localStorage
+let SESSION = JSON.parse(localStorage.getItem(LS_SESSION)||'null');  // { session_key, email, fn, ln, member, ts } — no cedula: it's never read back, only used transiently to derive `member`
+if(SESSION && (!SESSION.ts || (Date.now()-SESSION.ts) > SESSION_MAX_AGE_MS)){
+  SESSION = null; localStorage.removeItem(LS_SESSION);
+}
 let VM = null;          // current parsed view model
 let prevState = { welcome:0, birthday:0 };
 
-function saveSession(s){ SESSION=s; localStorage.setItem(LS_SESSION, JSON.stringify(s)); }
+function saveSession(s){ SESSION={...s, ts:Date.now()}; localStorage.setItem(LS_SESSION, JSON.stringify(SESSION)); }
 function clearSession(){ SESSION=null; localStorage.removeItem(LS_SESSION); }
 
 /* ---------- DOM helpers ---------- */
 function $(id){return document.getElementById(id)}
+// Escape text from API responses (reward/vendor/currency names, etc.) before it's
+// interpolated into innerHTML — these come from the vendor's catalog/account data,
+// not from us, so they're treated as untrusted to prevent stored XSS.
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+// Same, but for text embedded inside a single-quoted JS string literal within an
+// inline onclick="..." attribute (e.g. onclick="redeem('${name}')") — escapes for
+// the JS-string boundary first, then HTML-escapes the whole attribute value.
+function escapeJsAttr(s){
+  const jsEscaped = String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  return escapeHtml(jsEscaped);
+}
 function show(id){$(id).style.display='block'}
 function hide(id){$(id).style.display='none'}
 function setErr(id,msg){const el=$(id);if(!el)return;el.textContent=msg||'';el.style.display=msg?'block':'none'}
@@ -1618,7 +1658,7 @@ async function doLogin(btn){
   try{
     const res = await SpoonityAPI.authenticate(email,pass);
     const u = res.user||{};
-    saveSession({ session_key:res.session_identifier, email, ced:u.cedula||'',
+    saveSession({ session_key:res.session_identifier, email,
       fn:u.first_name||'Jugador', ln:u.last_name||'', member:'PE-'+(u.cedula? u.cedula.slice(-6):'000000') });
     await enterApp();
   }catch(e){
@@ -1649,6 +1689,7 @@ async function regStep1(btn){
   ['rg-email-err','rg-pass-err','rg-fn-err','rg-ln-err'].forEach(x=>setErr(x,''));
   if(!validEmail(e))return setErr('rg-email-err','Ingresa un email válido.');
   if(p.length<6)return setErr('rg-pass-err','La contraseña debe tener mínimo 6 caracteres.');
+  if(!/[A-Z]/.test(p)||!/[a-z]/.test(p)||!/[0-9]/.test(p))return setErr('rg-pass-err','Usa mayúscula, minúscula y un número.');
   if(fn.length<2)return setErr('rg-fn-err','Ingresa tus nombres.');
   if(ln.length<2)return setErr('rg-ln-err','Ingresa tus apellidos.');
   busy(btn,true);
@@ -1680,7 +1721,7 @@ async function regStep2(btn){
       password:regData.pass,cedula:ced,birthdate,termsAccepted:true
     });
     const res=await SpoonityAPI.authenticate(regData.email,regData.pass);
-    saveSession({session_key:res.session_identifier,email:regData.email,ced,
+    saveSession({session_key:res.session_identifier,email:regData.email,
       fn:regData.fn,ln:regData.ln,member:'PE-'+ced.slice(-6)});
     await SpoonityAPI.updateProfile(SESSION.session_key,{
       first_name:regData.fn,last_name:regData.ln,email_address:regData.email,
@@ -1756,7 +1797,7 @@ async function fgStep3(btn){
     await SpoonityAPI.applyPasswordReset(fgToken, p);
     const res = await SpoonityAPI.authenticate(fgEmail, p);
     const u=res.user||{};
-    saveSession({ session_key:res.session_identifier, email:fgEmail, ced:u.cedula||'',
+    saveSession({ session_key:res.session_identifier, email:fgEmail,
       fn:u.first_name||'Jugador', ln:u.last_name||'',
       member:'PE-'+(u.cedula? u.cedula.slice(-6):'000000') });
     hide('fg-3');show('fg-1');
@@ -1861,9 +1902,9 @@ function render(animate){
           ${t.rewards.map(r=>`
             <div class="reward">
               <div class="ri">${rewardImg(r)||rewardEmoji(r)}</div>
-              <div class="rt"><b>${r.name}</b><span>${ok?'Desbloqueado':'Bloqueado'}</span></div>
+              <div class="rt"><b>${escapeHtml(r.name)}</b><span>${ok?'Desbloqueado':'Bloqueado'}</span></div>
               <button class="btn-redeem" ${ok&&r.available>0?'':'disabled'}
-                onclick="redeemPoints(${t.cost},'${(r.name||'').replace(/'/g,'')}','${t.emoji||'🎁'}')">
+                onclick="redeemPoints(${t.cost},'${escapeJsAttr(r.name)}','${t.emoji||'🎁'}')">
                 ${ok?(r.available>0?'Canjear':'Desbloqueado'):t.cost.toLocaleString()+' pts'}
               </button>
             </div>`).join('')}
@@ -1892,7 +1933,7 @@ function renderSpecials(){
     html += specialCard('welcome','🎁',v.welcomeName,'Premio de bienvenida al club','Canjear', "goPage('pg-qr')");
   }
   if(v.birthdayAvailable>0){
-    html += specialCard('birthday','🎂',v.birthdayName,'¡Feliz cumpleaños de parte del club! 🎉','Canjear regalo', `redeemSpecial('birthday','${v.birthdayName.replace(/'/g,'')}','🎂')`);
+    html += specialCard('birthday','🎂',v.birthdayName,'¡Feliz cumpleaños de parte del club! 🎉','Canjear regalo', `redeemSpecial('birthday','${escapeJsAttr(v.birthdayName)}','🎂')`);
   }
   host.innerHTML = html;
   host.style.display = html?'block':'none';
@@ -1900,7 +1941,7 @@ function renderSpecials(){
 function specialCard(kind,emoji,title,sub,cta,onclick){
   return `<div class="special-card ${kind}">
     <div class="sc-emoji">${emoji}</div>
-    <div class="sc-body"><b>${title}</b><span>${sub}</span></div>
+    <div class="sc-body"><b>${escapeHtml(title)}</b><span>${sub}</span></div>
     <button class="btn-redeem" onclick="${onclick}">${cta}</button>
   </div>`;
 }
@@ -2039,37 +2080,22 @@ function openWallet(){
 }
 function closeWallet(){$('wallet-bg').classList.remove('open')}
 
-// Real wallet pass generation: Apple returns a base64 .pkpass (downloaded with the
-// pkpass MIME type so iOS offers to add it to Wallet); Google returns a JWT used
-// to build the official "Save to Google Wallet" link.
-async function addToWallet(which){
+// Wallet enrollment: a single universal link (Spoonity's passkit service detects
+// Apple/Google automatically) — not an API call, just open the URL.
+//   https://spoonity-passkit.onrender.com/enroll/{enrollmentId}?v={vendor}
+// ⚠️ TODO: confirm where `enrollmentId` comes from for a given socio (a field on
+// Not per-socio: it's a fixed enrollment landing page for this vendor's wallet
+// campaign. The socio fills in their own name/email there and the pass is
+// emailed to them — our app just opens the link, nothing to fetch first.
+const WALLET_ENROLL_URL = 'https://spoonity-passkit.onrender.com/enroll/43011DTdmHUXdITJovRAgA?v=2112777';
+function addToWallet(){
   if(!SESSION)return;
-  const isApple = which.indexOf('Apple')>=0;
-  try{
-    if(isApple){
-      const res = await SpoonityAPI.getAppleWalletPass(SESSION.session_key);
-      const b64 = res && (res.data || res.pkpass || res.file);
-      if(!b64) throw new Error('Sin datos de pase.');
-      const bytes = atob(b64);
-      const arr = new Uint8Array(bytes.length);
-      for(let i=0;i<bytes.length;i++) arr[i]=bytes.charCodeAt(i);
-      const blob = new Blob([arr], { type:'application/vnd.apple.pkpass' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download='padelecuador.pkpass';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url), 4000);
-    } else {
-      const res = await SpoonityAPI.getGoogleWalletPass(SESSION.session_key);
-      const jwt = res && (res.jwt || res.token || res.save_url);
-      if(!jwt) throw new Error('Sin token de Google Wallet.');
-      const url = jwt.indexOf('http')===0 ? jwt : 'https://pay.google.com/gp/v/save/'+jwt;
-      window.open(url, '_blank');
-    }
-    closeWallet(); confettiBurst();
-    toast('💳 ¡Tarjeta agregada a '+which+'!');
-  }catch(e){
-    toast('No pudimos generar tu tarjeta de '+which+'. Intenta de nuevo.');
-  }
+  // Defense in depth: only ever open our own passkit domain, even though the URL above is a fixed constant.
+  let host = '';
+  try{ host = new URL(WALLET_ENROLL_URL).hostname; }catch(_){ /* falls through to the check below */ }
+  if(!/(^|\.)onrender\.com$/.test(host)) return toast('URL de Wallet no reconocida.');
+  window.open(WALLET_ENROLL_URL, '_blank', 'noopener,noreferrer');
+  closeWallet();
 }
 
 /* ============================================================
@@ -2199,14 +2225,14 @@ function renderTxItem(tx){
     if(!c.amount) return;
     const sign = c.amount > 0 ? '+' : '';
     const color = c.amount > 0 ? 'var(--pe-blue)' : '#E5484D';
-    details.push(`<span style="color:${color};font-weight:700">${sign}${c.amount.toLocaleString()} ${c.name}</span>`);
+    details.push(`<span style="color:${color};font-weight:700">${sign}${c.amount.toLocaleString()} ${escapeHtml(c.name)}</span>`);
   });
 
   return `<div class="menu-item" style="align-items:flex-start;flex-direction:column;gap:6px">
     <div style="display:flex;align-items:center;gap:8px">
       ${icon}
       <span style="display:flex;flex-direction:column;min-width:0">
-        <b>${vendorName}</b>
+        <b>${escapeHtml(vendorName)}</b>
         <span class="sub" style="font-size:12px">${date}${total?' · $'+total:''}</span>
       </span>
     </div>
