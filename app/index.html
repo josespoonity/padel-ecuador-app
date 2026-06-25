@@ -5,16 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Padel Ecuador · Club de Puntos</title>
 <!--
+  The app talks to Spoonity's Consumer API directly from the browser (no proxy) — exactly
+  like the Buckhead microsite. So connect-src is pinned to https://api.spoonity.com.
   CSP via <meta> can't enforce frame-ancestors (clickjacking) or other response-header-only
-  directives — the browser ignores those when set this way. For real clickjacking protection,
-  set `Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options: DENY` as actual
-  HTTP response headers at the hosting layer (Netlify/Vercel/Cloudflare _headers config, etc.)
-  — GitHub Pages alone cannot set custom headers.
-  connect-src allows localhost (any port, for local proxy dev) and https: (any deployed proxy
-  domain, since that's not finalized yet) — once the real production proxy domain is fixed,
-  tighten this to that exact origin instead of the broad `https:` wildcard.
+  directives — the browser ignores those when set this way. Those (frame-ancestors, X-Frame-Options,
+  HSTS, etc.) are set as real HTTP response headers at the hosting layer in firebase.json.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://localhost:* https:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.spoonity.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1089,15 +1086,13 @@ input{font-family:inherit}
 
 /* ---------- Config ---------- */
 const CONFIG = {
-  // Toggle DEMO_MODE=false once the proxy is live. When false, calls go to PROXY_BASE.
+  // DEMO_MODE=true returns local mock payloads; false hits the live Spoonity API.
   DEMO_MODE: false,
-  // ⚠️ Must point at YOUR deployed proxy (see proxy/README.md), never directly at
-  // Spoonity — the proxy is what injects vendor/language server-side and avoids
-  // CORS. This local-dev default WILL fail in production.
-  // Deployed via Firebase Hosting + the spoonityProxy function? Use the relative
-  // path below instead — same origin via the Hosting rewrite, no CORS needed:
-  //   PROXY_BASE: '/api/spoonity',
-  PROXY_BASE: 'http://localhost:8787/api/spoonity',
+  // The browser calls Spoonity's Consumer API directly — no proxy, no Cloud Function
+  // (so Firebase Hosting stays on the free Spark plan). Same pattern as the Buckhead
+  // microsite: vendor is sent per-request from CONFIG.VENDOR, session_key is a query
+  // param, and CORS is handled by Spoonity. See app/index.html CSP connect-src.
+  API_BASE: 'https://api.spoonity.com',
   VENDOR: 2112777,
   LANGUAGE: 3,                          // 3 = Spanish
   CONSENT_FULL: 3,                      // 3 = email + SMS when T&C accepted
@@ -1159,7 +1154,7 @@ function demoHash(s){
    like the real endpoints so the UI is fully exercised offline.
    ============================================================ */
 const SpoonityAPI = {
-  _url(path){ return CONFIG.PROXY_BASE + path; },
+  _url(path){ return CONFIG.API_BASE + path; },
 
   async _post(path, body){
     if(CONFIG.DEMO_MODE) return this._mock(path, body, 'POST');
@@ -1237,7 +1232,7 @@ const SpoonityAPI = {
   // Real shape: { balances:[{id,name,balance}], data:[{id,name,cost,available,currency:{id,name},...}],
   //               tier:{current,next,all}, page, total_pages, count }
   async getRewards(session_key, page){
-    return this._get('/user/reward/list', { session_key, page: page||1, limit: 50 });
+    return this._get('/user/reward/list', { session_key, vendor: CONFIG.VENDOR, page: page||1, limit: 50 });
   },
 
   // POST /user/reward/redeem -> { code, ... }
