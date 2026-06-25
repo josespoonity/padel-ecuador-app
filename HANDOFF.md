@@ -7,8 +7,10 @@
 
 A mobile-first loyalty web app for **Padel Ecuador**, a padel club in Guayaquil,
 Ecuador. It runs a points-to-rewards program backed by **Spoonity** (loyalty
-platform). The app is a single self-contained HTML file; a small Node/Express
-proxy connects it to the Spoonity Consumer API.
+platform). The app is a single self-contained HTML file that calls the Spoonity
+Consumer API **directly from the browser** — no backend, no proxy. This is the
+same pattern as the Buckhead Summer microsite, and it's what lets the whole thing
+deploy to Firebase Hosting on the **free Spark plan** (no Cloud Functions = no Blaze).
 
 - Audience: club members (consumers), Spanish-speaking.
 - Tone: fun, gamified. Brand voice: *"Padel is the best therapy."*
@@ -23,28 +25,31 @@ proxy connects it to the Spoonity Consumer API.
 padel-ecuador-app/
 ├── app/
 │   └── index.html              ← the entire web app (HTML+CSS+JS, one file)
-├── proxy/
-│   ├── server.js               ← Express proxy → api.spoonity.com
-│   ├── package.json            ← only dep is express; Node 18+ (native fetch)
-│   ├── .env.example            ← copy to .env
-│   ├── .gitignore
-│   └── README.md               ← proxy run instructions
-├── docs-proxy-contract.md      ← the API/proxy contract (routes, payload shapes)
+├── firebase.json               ← static Hosting config (Spark plan, no functions)
+├── .firebaserc                 ← Firebase project: padel-ecuador-d4842
+├── docs-proxy-contract.md      ← Spoonity API reference (routes, payload shapes)
 ├── brand/
 │   └── Padel_EC_BRAND.pdf       ← brand book
 └── HANDOFF.md                  ← this file
 ```
 
+> Historical note: an earlier version shipped a Node/Express proxy (`proxy/`) and a
+> Firebase Cloud Function. That was removed — Spoonity allows browser CORS, so the
+> proxy was unnecessary and it forced the Blaze plan. The app now calls the API
+> directly, exactly like the Buckhead microsite. `docs-proxy-contract.md` is kept
+> purely as a Spoonity endpoint/payload reference (ignore the "proxy" framing).
+
 ## 3. Architecture
 
 ```
-Browser (app/index.html)  →  proxy (localhost:8787)  →  https://api.spoonity.com
+Browser (app/index.html)  →  https://api.spoonity.com   (direct, no backend)
 ```
 
-The browser **cannot** call `api.spoonity.com` directly (CORS + token hygiene).
-The proxy resolves CORS and injects `vendor` server-side. The Spoonity MCP
-connector is NOT a substitute — it lives inside Claude, not as an HTTP server the
-app can call.
+The browser calls `api.spoonity.com` directly — Spoonity permits browser CORS, so
+no proxy is needed (verified against the live API; the Buckhead microsite ships the
+same way). `vendor` is sent per-request from `CONFIG.VENDOR`; `session_key` is a
+query param kept in `localStorage`. The single integration surface is `SpoonityAPI`
+in `app/index.html`, pointed at `CONFIG.API_BASE = 'https://api.spoonity.com'`.
 
 ### Spoonity facts baked in
 - Base: `https://api.spoonity.com` (Consumer API).
@@ -74,7 +79,7 @@ All JS is in the final `<script>` block. Key pieces:
   `authenticate`, `rewardsList`, `redeem`, `updateProfile`, `requestReset`.
   - When `CONFIG.DEMO_MODE === true`, every method returns mock payloads shaped
     **exactly** like the real endpoints (so the parser/UI are identical in both modes).
-  - When `false`, methods `fetch()` against `CONFIG.PROXY_BASE`.
+  - When `false`, methods `fetch()` against `CONFIG.API_BASE` (`https://api.spoonity.com`).
 - `parseRewards(list)` — **the most likely thing you'll need to adjust.** Turns the
   `/user/rewards/list` response into the view model (points, tiers, visits,
   welcome/birthday availability). If real field names/nesting differ from the mock,
@@ -105,34 +110,33 @@ Demo creds: `demo@padelecuador.com` / `demo123`; OTP `123456`. Demo account has
 1,250 pts, 7 visits, birthday reward active.
 
 **Stubbed / not yet real:**
-- **Live Spoonity calls** — needs the proxy running + `DEMO_MODE:false` + real test
-  account on vendor 2112777. Not yet validated against real responses.
+- **Live Spoonity calls** — wired (`DEMO_MODE:false`, direct to `api.spoonity.com`),
+  but not yet validated against real responses with a member on vendor 2112777.
 - **`parseRewards` against real payload** — verify field names/nesting (see §7).
-- **Wallet** (`addToWallet`) — demo only. Production needs the proxy to generate the
-  Apple `.pkpass` / Google Wallet link. Hook point marked in the function.
+- **Wallet** (`addToWallet`) — uses Spoonity's hosted passkit enroll link
+  (`spoonity-passkit.onrender.com/enroll/{id}?v={vendor}`), so no backend needed.
+  Verify the enrollment id/flow against a real account.
 - **VIP** — informational page only; not wired to a currency (wasn't in scope of the 4 currencies).
 - **Transactions/history** — removed; not available from `/user/rewards/list`. Add later if Spoonity exposes a transactions endpoint.
 
-## 6. Going live (the switch)
+## 6. Going live & deploying (no Blaze)
 
-1. Run the proxy:
-   ```bash
-   cd proxy && cp .env.example .env && npm install && npm start
-   # health check: curl http://localhost:8787/health
-   ```
-2. In `app/index.html`, `CONFIG` block:
-   ```js
-   DEMO_MODE: false,
-   PROXY_BASE: 'http://localhost:8787/api/spoonity',
-   ```
-3. Serve the app over http:// (NOT file://):
-   ```bash
-   cd app && npx serve .     # or: python3 -m http.server 3000
-   ```
-4. Smoke test the wiring directly:
-   ```bash
-   curl "http://localhost:8787/api/spoonity/user/email/exists?email=test@example.com"
-   ```
+The app is already wired for live, direct API calls (`CONFIG.DEMO_MODE: false`,
+`CONFIG.API_BASE: 'https://api.spoonity.com'`). To flip back to the offline demo,
+set `DEMO_MODE: true`. There is no proxy to run.
+
+**Local test** (serve over http://, not file://, so fetch/CORS behave):
+```bash
+cd app && npx serve .     # or: python3 -m http.server 3000
+```
+
+**Deploy to Firebase Hosting (free Spark plan):**
+```bash
+firebase deploy --only hosting   # project padel-ecuador-d4842 (see .firebaserc)
+```
+`firebase.json` serves the `app/` dir as static files with security headers + a CSP
+that pins `connect-src` to `https://api.spoonity.com`. No `functions` block, so
+Firebase never asks you to upgrade to Blaze.
 
 ## 7. Immediate next steps (suggested order)
 
@@ -142,18 +146,19 @@ Demo creds: `demo@padelecuador.com` / `demo123`; OTP `123456`. Demo account has
 2. **Confirm redeem semantics.** Verify `POST /user/reward/redeem` body
    (`session_key, vendor, currency, spending_rule_id`) and the returned `code` field
    name. Adjust `SpoonityAPI.redeem` + `openRedeemModal` if needed.
-3. **Add proxy request logging** while testing (status + response snippet per upstream call) — quick debugging aid.
-4. **Wallet backend** — implement `.pkpass` / Google Wallet generation behind a new
-   proxy route, then wire `addToWallet`.
-5. **Harden for deploy** — move proxy behind HTTPS, set `ALLOWED_ORIGIN` to the real
-   domain, keep `session_key` out of logs (consider httpOnly cookie).
+3. **Watch the Network tab** while testing — confirm each call returns 200 and the
+   payload matches the mock shape; adjust `parseRewards()` if field names differ.
+4. **Verify Wallet enrollment** — confirm the `spoonity-passkit.onrender.com` enroll
+   link works for a real member (it's a direct link, no backend to build).
+5. **Deploy** — `firebase deploy --only hosting` (Spark plan). Security headers + CSP
+   are already set in `firebase.json`.
 
 ## 8. Known gotchas (already handled, don't regress)
 - `session_key` is a **query param**, never a header.
 - User data is nested under `response.user.*` on authenticate.
 - `PUT /user/profile` → empty 200 body; don't call `.json()` blindly (handled in `_safeJson`).
-- `vendor` is an integer in some bodies; proxy sends it correctly per route.
-- Node 18+ required for the proxy (native `fetch`). Tested on Node 22.
+- `vendor` is sent per-request from `CONFIG.VENDOR` (integer in bodies, query param on GETs).
+  `/user/reward/list` needs it explicitly — easy to forget since `/user/profile` doesn't.
 
 ## 9. Open questions for the client / product owner
 - Real `spending_rules` IDs, names, costs, and `available` logic per currency on
@@ -164,5 +169,6 @@ Demo creds: `demo@padelecuador.com` / `demo123`; OTP `123456`. Demo account has
 
 ---
 *Built iteratively with the user (Jose, CRO @ Spoonity). The app reuses the same
-registration/auth pattern as the Buckhead Summer Dine Around project. Demo mode is
-fully functional offline; production needs the proxy + real Spoonity test credentials.*
+registration/auth pattern (and the direct, proxy-free API approach) as the Buckhead
+Summer Dine Around project. Demo mode is fully functional offline; production just
+needs real Spoonity test credentials on vendor 2112777.*
