@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: verifica que el usuario autenticado sea admin
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/config/admins)
+        && request.auth.token.email in get(/databases/$(database)/documents/config/admins).data.emails;
+    }
+
+    // Banners — lectura pública, escritura solo admins
+    match /promos/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Award promos — lectura pública (la app las lee para mostrar spending rule info)
+    // escritura solo admins
+    match /award_promos/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Config/admins — lectura autenticados, escritura admins (o bootstrap si no existe)
+    match /config/admins {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && (
+          !exists(/databases/$(database)/documents/config/admins)
+          || request.auth.token.email in get(/databases/$(database)/documents/config/admins).data.emails
+        );
+    }
+
+    // Config/vendor — solo admins (contiene API key sensible)
+    match /config/vendor {
+      allow read, write: if isAdmin();
+    }
+  }
+}

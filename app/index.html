@@ -11,7 +11,7 @@
   directives — the browser ignores those when set this way. Those (frame-ancestors, X-Frame-Options,
   HSTS, etc.) are set as real HTTP response headers at the hosting layer in firebase.json.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.spoonity.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.spoonity.com https://firestore.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,6 +95,12 @@ input{font-family:inherit}
 }
 .auth-card h2{font-family:'Fredoka';font-weight:600;font-size:26px;color:var(--pe-ink)}
 .auth-card .sub{color:var(--pe-grey);font-size:14px;margin:6px 0 22px}
+.auth-promo-wrap{width:100%;padding:16px 16px 24px;box-sizing:border-box;position:relative;z-index:1}
+.auth-promo-wrap .promo-carousel{border-radius:var(--radius-m);overflow:hidden}
+.auth-promo-wrap .promo-dots{margin-top:8px}
+@media(min-width:760px){
+  .auth-promo-wrap{width:464px;max-width:100%;padding-left:0;padding-right:0}
+}
 
 .field{margin-bottom:16px}
 .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--pe-ink)}
@@ -145,9 +151,9 @@ input{font-family:inherit}
 
 /* ============ App shell ============ */
 .app-shell{min-height:100vh;display:flex;flex-direction:column;max-width:520px;margin:0 auto;background:var(--pe-mist);position:relative}
-@media(min-width:560px){.app-shell{box-shadow:0 0 60px rgba(10,85,134,.15)}}
+@media(min-width:560px){.app-shell{box-shadow:0 0 80px rgba(10,85,134,.14)}}
 .app-header{
-  padding:22px 22px 64px;color:#fff;position:relative;
+  padding:22px 22px 58px;color:#fff;position:relative;
 }
 .app-header .top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
 .app-header .logo-rewards{display:inline-block;position:relative;z-index:1}
@@ -163,11 +169,11 @@ input{font-family:inherit}
 .greeting .hello{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.86);letter-spacing:.2px}
 .greeting h1{font-family:'Fredoka';font-weight:600;font-size:25px;line-height:1.12;white-space:nowrap}
 
-.app-body{flex:1;padding:0 18px 110px;margin-top:-38px;position:relative;z-index:2}
+.app-body{flex:1;padding:0 16px 124px;margin-top:-38px;position:relative;z-index:2}
 
 /* ============ Desktop layout ============ */
 @media(min-width:760px){
-  body{background:var(--pe-blue)}
+  body{background:#EEF4F9}
   /* Only when app is active show as flex row */
   .screen#scr-app.active{display:flex!important;min-height:100vh;width:100%}
   .screen#scr-app.active .app-shell{max-width:none;flex-direction:row;flex:1;box-shadow:none;width:100%;margin:0}
@@ -181,12 +187,22 @@ input{font-family:inherit}
   .screen#scr-app.active .app-header .greeting h1{font-size:25px}
   .screen#scr-app.active .pts-desktop-pill{display:flex!important}
   /* Body */
-  .screen#scr-app.active .app-body{padding:28px 40px 40px;margin-top:0}
+  .screen#scr-app.active .app-body{padding:26px 48px 60px;margin-top:0}
   .screen#scr-app.active .rewards-page-header{padding-top:0}
+  .home-wrap{max-width:1060px;margin:0 auto}
+  .home-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
+  .rewards-wrap{max-width:940px;margin:0 auto}
+  .narrow-wrap{max-width:760px;margin:0 auto}
+  .reward-carousel{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(160px,200px));gap:12px;overflow-x:unset;scroll-snap-type:unset;padding:4px 0 0;margin:0;justify-content:center}
+  .reward-carousel .reward{width:100%;max-width:none;flex:none}
+  .reward{max-width:none;flex:none}
+  .carousel-dots,.carousel-hint{display:none!important}
+  .home-reward-scroll{max-width:530px}
   /* Nav */
   .bottom-nav{display:none!important}
   /* Auth screens — card flotante centrada sobre stage azul */
   .screen.active:not(#scr-app) .auth-shell{align-items:center;justify-content:center;padding:40px 24px}
+  .auth-login-group{display:flex;flex-direction:column;align-items:center;width:100%;max-width:464px}
   .screen.active:not(#scr-app) .auth-card-wrap{
     width:464px;max-width:100%;border-radius:28px;
     box-shadow:0 30px 70px -24px rgba(4,34,56,.5);align-self:auto;
@@ -230,6 +246,11 @@ input{font-family:inherit}
 .wallet-mini .wm-text b{display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:12px}
 .wallet-mini-desktop{display:none}
 @media(min-width:760px){ .screen#scr-app.active .wallet-mini-desktop{display:flex} }
+@media(min-width:1024px){
+  .auth-login-group{flex-direction:row;align-items:flex-start;justify-content:center;max-width:none;gap:28px}
+  .auth-login-group .auth-card-wrap{flex:0 0 464px}
+  .auth-promo-wrap{width:320px;flex:0 0 320px;padding:0}
+}
 .pts-desktop-pill span:first-child{display:block;font:600 10px/1 'Poppins',sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.8)}
 .pts-desktop-pill .pts-val{display:block;font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;line-height:1.1;color:var(--pe-yellow);margin-top:2px}
 .page{display:none;animation:fadeUp .35s ease}
@@ -315,7 +336,7 @@ input{font-family:inherit}
 .reward .ri img{width:100%;height:100%;object-fit:cover;border-radius:18px}
 .reward .rt b{font-size:15px;display:block}
 .reward .rt span{font-size:12px;color:var(--pe-grey)}
-.reward .btn-redeem{width:100%;padding:11px}
+.reward .btn-redeem{width:100%;padding:11px;margin-top:auto}
 .carousel-dots{display:flex;justify-content:center;gap:6px;margin-top:2px}
 .carousel-dots i{width:6px;height:6px;border-radius:50%;background:#CFE0EC;transition:background .25s,width .25s}
 .carousel-dots i.on{background:var(--pe-blue);width:18px;border-radius:99px}
@@ -345,6 +366,18 @@ input{font-family:inherit}
 }
 .qr-frame img, .qr-frame canvas{border-radius:8px}
 .qr-token{font-family:'Fredoka';font-weight:600;font-size:15px;letter-spacing:2px;color:var(--pe-grey);margin-top:10px}
+
+/* Unlocked rewards on home */
+.home-unlocked-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.home-unlocked-header h3{font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;color:var(--pe-ink);margin:0}
+.home-unlocked-header button{background:none;border:none;font-size:12.5px;font-weight:600;color:var(--pe-blue);cursor:pointer;padding:0}
+.home-reward-scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:12px 0 4px;scrollbar-width:none}
+.home-reward-scroll::-webkit-scrollbar{display:none}
+.home-reward-card{scroll-snap-align:start;flex:0 0 120px;width:120px;background:#F4F8FB;border-radius:var(--radius-s);padding:12px 10px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px}
+.home-reward-card .ri{width:44px;height:44px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;overflow:hidden}
+.home-reward-card .ri img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.home-reward-card b{font-size:12px;color:var(--pe-ink);line-height:1.25;display:block}
+.home-reward-card .btn-redeem{width:100%;padding:7px;font-size:12px;margin-top:auto}
 
 /* Promo carousel */
 .promo-carousel{
@@ -477,7 +510,7 @@ input{font-family:inherit}
 
 /* Toast */
 .toast{
-  position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-90px);
+  position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(calc(-100% - 24px));
   background:var(--pe-black);color:#fff;font-size:13.5px;font-weight:600;padding:13px 22px;
   border-radius:99px;z-index:200;transition:transform .35s cubic-bezier(.3,.9,.3,1.2);max-width:90%;text-align:center;
 }
@@ -489,19 +522,62 @@ input{font-family:inherit}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 
 /* Special reward cards (welcome / birthday) */
+/* Wallet-style coupon cards */
 .special-card{
-  display:flex;align-items:center;gap:14px;border-radius:var(--radius-l);padding:18px;margin-bottom:14px;
-  box-shadow:var(--shadow-card);position:relative;overflow:hidden;animation:fadeUp .4s ease;
+  border-radius:20px;padding:22px;color:#fff;
+  box-shadow:0 8px 28px rgba(0,0,0,.18);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;min-height:158px;
+  animation:fadeUp .4s ease;cursor:pointer;
 }
-.special-card.welcome{background:linear-gradient(120deg,var(--pe-blue),#3BA0DF);color:#fff}
-.special-card.birthday{background:linear-gradient(120deg,#FFDE17,#FFB800);color:var(--pe-black)}
-.special-card::after{content:'';position:absolute;right:-26px;top:-26px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.18)}
-.special-card .sc-emoji{font-size:38px;flex:none}
-.special-card .sc-body{flex:1;position:relative;z-index:1}
-.special-card .sc-body b{display:block;font-family:'Fredoka';font-weight:600;font-size:16px}
-.special-card .sc-body span{font-size:12.5px;opacity:.92}
-.special-card .btn-redeem{position:relative;z-index:1;background:var(--pe-black);color:#fff}
-.special-card.birthday .btn-redeem{background:#fff;color:var(--pe-black)}
+.special-card.welcome{background:linear-gradient(135deg,#0f5e96,var(--pe-blue) 55%,#3BA0DF)}
+.special-card.birthday{background:linear-gradient(135deg,#c9a800,#FFDE17 55%,#FFE84D);color:var(--pe-black)}
+.special-card::before{content:'';position:absolute;right:-40px;bottom:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.10)}
+.special-card::after{content:'';position:absolute;right:50px;bottom:-60px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07)}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:1}
+.sc-emoji{font-size:30px;line-height:1}
+.sc-badge{font-size:11px;font-weight:600;letter-spacing:.4px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.22)}
+.special-card.birthday .sc-badge{background:rgba(0,0,0,.10);color:var(--pe-black)}
+.sc-title{font-family:'Fredoka';font-weight:600;font-size:19px;margin-bottom:4px;position:relative;z-index:1}
+.sc-sub{font-size:12.5px;opacity:.88;flex:1;margin-bottom:18px;position:relative;z-index:1;line-height:1.4}
+.special-card .btn-redeem{
+  position:relative;z-index:1;align-self:flex-start;
+  background:rgba(255,255,255,.22);color:#fff;
+  border:1.5px solid rgba(255,255,255,.40);
+  border-radius:12px;padding:9px 18px;font-size:13px;font-weight:600;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.special-card.birthday .btn-redeem{background:rgba(0,0,0,.12);color:var(--pe-black);border-color:rgba(0,0,0,.18)}
+/* Wallet stack container */
+#specials{transition:height .35s cubic-bezier(.4,0,.2,1);position:relative}
+#specials.wallet-mode .special-card{position:absolute;left:0;right:0;transition:top .35s cubic-bezier(.34,1.1,.64,1),box-shadow .35s ease,transform .35s ease}
+#specials .wallet-hint{position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:11px;color:var(--pe-grey);pointer-events:none}
+#specials.wallet-expanded .wallet-hint{display:none}
+
+/* ── Promo landing screen (scr-promo) ── */
+.pl-shell{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto}
+.pl-top{flex:1;padding:24px 20px 0;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.pl-logo-row{margin-bottom:18px;position:relative;z-index:1}
+.pl-logo-row img{width:110px;height:auto}
+.pl-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,222,23,.15);border:1px solid rgba(255,222,23,.4);border-radius:99px;padding:4px 10px;font-size:10.5px;font-weight:600;color:var(--pe-yellow);letter-spacing:.04em;text-transform:uppercase;margin-bottom:16px;position:relative;z-index:1}
+.pl-art{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;position:relative;z-index:1;padding-bottom:16px}
+.pl-art-emoji{font-size:80px;line-height:1;filter:drop-shadow(0 8px 24px rgba(0,0,0,.3))}
+.pl-art-label{font-family:'Fredoka';font-size:20px;font-weight:700;color:var(--pe-yellow);letter-spacing:.04em;text-align:center}
+.pl-sheet{background:#fff;border-radius:24px 24px 0 0;padding:20px 20px 36px;box-shadow:0 -4px 24px rgba(0,0,0,.12)}
+.pl-handle{width:36px;height:4px;background:#E0E0E0;border-radius:99px;margin:0 auto 18px}
+.pl-sheet h2{font-family:'Fredoka';font-size:22px;font-weight:700;color:var(--pe-ink);line-height:1.25;margin-bottom:8px}
+.pl-sheet p{font-size:13px;color:var(--pe-grey);line-height:1.6;margin-bottom:18px}
+.pl-cta{width:100%;background:var(--pe-yellow);color:var(--pe-black);font-family:'Poppins';font-size:14px;font-weight:700;border:none;border-radius:var(--radius-m);padding:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
+.pl-cta:hover{background:#E8C800}
+.pl-cta-ghost{width:100%;background:none;border:none;font-family:'Poppins';font-size:13px;color:var(--pe-grey);cursor:pointer;padding:12px 8px;margin-top:4px;transition:color .15s}
+.pl-cta-ghost:hover{color:var(--pe-ink)}
+/* Promo chip in login form */
+.promo-claim-chip{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,#E8F5FF,#D6ECF9);border:1px solid #B8DDEF;border-radius:10px;padding:11px 13px;margin-bottom:18px}
+.promo-claim-chip.show{display:flex}
+.pcc-icon{width:36px;height:36px;background:var(--pe-blue);border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px}
+.pcc-body{flex:1}
+.pcc-body strong{display:block;font-size:12.5px;font-weight:600;color:var(--pe-ink)}
+.pcc-body span{font-size:11.5px;color:var(--pe-grey)}
 
 /* Birthday celebration */
 .bday-layer{position:fixed;inset:0;pointer-events:none;z-index:310;overflow:hidden;display:none}
@@ -531,6 +607,7 @@ input{font-family:inherit}
 <!-- ================= AUTH: SIGN IN ================= -->
 <div class="screen active" id="scr-login">
   <div class="auth-shell">
+  <div class="auth-login-group">
     <div class="auth-card-wrap">
     <div class="auth-hero pattern-blue">
       <div style="position:relative;z-index:1">
@@ -542,8 +619,16 @@ input{font-family:inherit}
       </div>
     </div>
     <div class="auth-card">
-      <h2>Hola de nuevo</h2>
-      <p class="sub">Inicia sesión para sumar puntos y canjear tus premios.</p>
+      <h2 id="li-title">Hola de nuevo</h2>
+      <p class="sub" id="li-sub">Inicia sesión para sumar puntos y canjear tus premios.</p>
+      <div class="promo-claim-chip" id="promo-claim-chip">
+        <div class="pcc-icon" id="pcc-icon">🎾</div>
+        <div class="pcc-body">
+          <strong id="pcc-title">Promoción pendiente</strong>
+          <span>Se activará automáticamente al entrar</span>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
       <div class="field">
         <label>Email</label>
         <input type="email" id="li-email" placeholder="tu@email.com">
@@ -562,12 +647,44 @@ input{font-family:inherit}
       <button class="btn btn-ghost" onclick="startRegister()">Crear cuenta gratis</button>
     </div>
     </div><!-- /auth-card-wrap -->
+    <div class="auth-promo-wrap">
+      <div class="promo-carousel" id="auth-promo-carousel"></div>
+      <div class="promo-dots" id="auth-promo-dots"></div>
+    </div>
+  </div><!-- /auth-login-group -->
+  </div>
+</div>
+
+<!-- ================= PROMO LANDING ================= -->
+<div class="screen" id="scr-promo">
+  <div class="pl-shell">
+    <div class="pl-top pattern-blue">
+      <div class="pl-logo-row">
+        <img src="assets/logo-padel-ecuador-white.png" alt="Padel Ecuador">
+      </div>
+      <div class="pl-badge">⭐ Promoción exclusiva</div>
+      <div class="pl-art">
+        <div class="pl-art-emoji" id="pl-emoji">🎾</div>
+        <div class="pl-art-label" id="pl-art-label"></div>
+      </div>
+    </div>
+    <div class="pl-sheet">
+      <div class="pl-handle"></div>
+      <h2 id="pl-title">Cargando…</h2>
+      <p id="pl-desc"></p>
+      <button class="pl-cta" id="pl-btn-login" onclick="goToLoginFromPromo()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+        Iniciar sesión para activar
+      </button>
+      <button class="pl-cta-ghost" onclick="startRegisterFromPromo()">Crear cuenta nueva →</button>
+    </div>
   </div>
 </div>
 
 <!-- ================= AUTH: REGISTER ================= -->
 <div class="screen" id="scr-register">
   <div class="auth-shell">
+  <div class="auth-login-group">
     <div class="auth-card-wrap">
     <div class="auth-hero pattern-blue" style="padding-bottom:60px">
       <div style="position:relative;z-index:1">
@@ -581,7 +698,15 @@ input{font-family:inherit}
       <!-- Step 1: Acceso y nombre -->
       <div id="reg-1">
         <h2>Crea tu cuenta</h2>
-        <p class="sub">Paso 1 de 2 · Acceso y nombre</p>
+        <p class="sub">Paso 1 de 3 · Acceso y nombre</p>
+        <div class="promo-claim-chip" id="promo-claim-chip-reg">
+          <div class="pcc-icon" id="pcc-icon-reg">🎾</div>
+          <div class="pcc-body">
+            <strong id="pcc-title-reg">Promoción pendiente</strong>
+            <span>Se activará automáticamente al registrarte</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
         <div class="field"><label>Email</label>
           <input type="email" id="rg-email" placeholder="tu@email.com" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email">
           <p class="err" id="rg-email-err"></p>
@@ -600,11 +725,11 @@ input{font-family:inherit}
       <!-- Step 2: Identidad y contacto -->
       <div id="reg-2" style="display:none">
         <h2>Identidad y contacto</h2>
-        <p class="sub">Paso 2 de 2 · Casi listo</p>
+        <p class="sub">Paso 2 de 3 · Identidad y contacto</p>
         <div class="field"><label>Cédula de identidad</label>
           <input type="text" id="rg-ced" maxlength="10" inputmode="numeric" placeholder="0912345678">
           <p class="err" id="rg-ced-err"></p>
-          <p class="hint">La usamos para verificar tu identidad al canjear premios en recepción.</p></div>
+          <p class="hint">La usamos para acumular y redimir puntos.</p></div>
         <div class="field"><label>Número de celular</label>
           <input type="tel" id="rg-phone" maxlength="10" inputmode="numeric" placeholder="0991234567">
           <p class="err" id="rg-phone-err"></p>
@@ -615,7 +740,7 @@ input{font-family:inherit}
         <div class="field" style="margin-top:18px">
           <label style="display:flex;align-items:flex-start;gap:10px;font-weight:400;font-size:13px;color:var(--pe-grey);cursor:pointer">
             <input type="checkbox" id="rg-terms" style="width:18px;height:18px;flex:none;margin-top:1px;accent-color:var(--pe-blue)">
-            <span>Acepto los <b style="color:var(--pe-blue)">Términos y Condiciones</b> y la <b style="color:var(--pe-blue)">Política de Privacidad</b>, y autorizo recibir comunicaciones del club por email y SMS.</span>
+            <span>Acepto los <b style="color:var(--pe-blue);cursor:pointer;text-decoration:underline" onclick="event.preventDefault();openLegal('terms')">Términos y Condiciones</b> y la <b style="color:var(--pe-blue);cursor:pointer;text-decoration:underline" onclick="event.preventDefault();openLegal('privacy')">Política de Privacidad</b>, y autorizo recibir comunicaciones del club por email, SMS y WhatsApp.</span>
           </label>
           <p class="err" id="rg-terms-err"></p>
         </div>
@@ -624,10 +749,27 @@ input{font-family:inherit}
       </div>
 
       <!-- Step 3/4 stubs kept for JS compatibility -->
-      <div id="reg-3" style="display:none"></div>
+      <div id="reg-3" style="display:none">
+        <h2>Verifica tu email</h2>
+        <p class="sub">Paso 3 de 3 · Último paso</p>
+        <p style="font-size:13px;color:var(--pe-grey);margin-bottom:12px;line-height:1.5">Te enviamos un código de verificación a <b id="rg-verify-email" style="color:var(--pe-ink)"></b>. Ingrésalo aquí para activar tu cuenta.</p>
+        <p style="font-size:12.5px;color:#6B7A87;background:#FFF8E1;border:1px solid #FFE082;border-radius:8px;padding:8px 12px;margin-bottom:16px;line-height:1.5">⚠️ Si no ves el email, revisa tu carpeta de <b>spam</b> o correo no deseado.</p>
+        <div class="field">
+          <label>Código de verificación</label>
+          <input type="text" id="rg-verify-token" placeholder="Código del email" inputmode="numeric" autocomplete="one-time-code">
+          <p class="err" id="rg-verify-err"></p>
+        </div>
+        <button class="btn btn-blue mt8" onclick="regVerify(this)">Verificar cuenta</button>
+        <button class="btn btn-ghost mt8" id="rg-resend-btn" onclick="regResend(this)">Reenviar código</button>
+      </div>
       <div id="reg-4" style="display:none"></div>
     </div>
     </div><!-- /auth-card-wrap -->
+    <div class="auth-promo-wrap">
+      <div class="promo-carousel" id="auth-promo-carousel-reg"></div>
+      <div class="promo-dots" id="auth-promo-dots-reg"></div>
+    </div>
+  </div><!-- /auth-login-group -->
   </div>
 </div>
 
@@ -652,6 +794,7 @@ input{font-family:inherit}
       <div id="fg-2" style="display:none">
         <h2>Ingresa el código</h2>
         <p class="sub">Te enviamos un enlace y un código de verificación a <b id="fg-email-show"></b>. Copia el código del email.</p>
+        <p style="font-size:12.5px;color:#6B7A87;background:#FFF8E1;border:1px solid #FFE082;border-radius:8px;padding:8px 12px;margin:10px 0 0;line-height:1.5">⚠️ Si no ves el email, revisa tu carpeta de <b>spam</b> o correo no deseado.</p>
         <div class="field"><label>Código de verificación</label>
           <input type="text" id="fg-token" placeholder="Código del email"><p class="err" id="fg-otp-err"></p></div>
         <button class="btn btn-blue mt16" onclick="fgStep2()">Verificar</button>
@@ -688,7 +831,7 @@ input{font-family:inherit}
           <svg viewBox="0 0 120 168" width="74" height="104" aria-hidden="true"><path d="M60 6C90 6 116 26 116 56C116 86 102 104 86 112L72 124L72 154C72 159 67 161 60 161C53 161 48 159 48 154L48 124L34 112C18 104 4 86 4 56C4 26 30 6 60 6Z" fill="#fff" stroke="#1581C5" stroke-width="6" stroke-linejoin="round"/><g fill="#FFDE17"><circle cx="45" cy="40" r="6"/><circle cx="60" cy="40" r="6"/><circle cx="75" cy="40" r="6"/><circle cx="45" cy="58" r="6"/><circle cx="60" cy="58" r="6"/><circle cx="75" cy="58" r="6"/><circle cx="45" cy="76" r="6"/><circle cx="60" cy="76" r="6"/><circle cx="75" cy="76" r="6"/></g></svg>
         </span>
         <h2 class="onb-title">Mantén tu racha de visitas</h2>
-        <p class="onb-body">Cada visita enciende una pelotita de tu raqueta. Vuelve cada 3 días para mantener tu racha viva y ver cuánto llegas.</p>
+        <p class="onb-body">Cada visita enciende una pelotita de tu pala. Vuelve cada 3 días para mantener tu racha viva y ver cuánto llegas.</p>
       </div>
       <!-- Step 2: Canjea premios -->
       <div class="onb-step" id="onb-2" style="display:none">
@@ -758,7 +901,7 @@ input{font-family:inherit}
           <div class="rewards-script">Rewards</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
-          <button class="wallet-mini" aria-label="Añadir tarjeta a Wallet" onclick="openWallet()">
+          <button class="wallet-mini" data-feature="wallet" aria-label="Añadir tarjeta a Wallet" onclick="openWallet()">
             <span class="wm-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
             <span class="wm-text"><small>Añadir a</small><b>Wallet</b></span>
           </button>
@@ -771,7 +914,7 @@ input{font-family:inherit}
           <h1 id="greet-name">Jugador/a</h1>
         </div>
         <div style="display:flex;align-items:center;gap:14px">
-          <button class="wallet-mini wallet-mini-desktop" aria-label="Añadir tarjeta a Wallet" onclick="openWallet()">
+          <button class="wallet-mini wallet-mini-desktop" data-feature="wallet" aria-label="Añadir tarjeta a Wallet" onclick="openWallet()">
             <span class="wm-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
             <span class="wm-text"><small>Añadir a</small><b>Wallet</b></span>
           </button>
@@ -787,113 +930,102 @@ input{font-family:inherit}
 
       <!-- ===== HOME ===== -->
       <div class="page active" id="pg-home">
+        <div class="home-wrap">
+          <div class="home-grid">
 
-        <!-- Special rewards (welcome / birthday) — only render when available > 0 -->
-        <div id="specials" style="display:none"></div>
+            <!-- LEFT COLUMN: points, quick actions, promo -->
+            <div style="display:flex;flex-direction:column;gap:14px">
 
-        <!-- Points + racket card -->
-        <div class="card">
-          <div class="points-hero">
-            <div style="flex:1;min-width:0">
-              <div class="points-lbl">Puntos disponibles</div>
-              <div class="points-num" id="pts-num">0</div>
-              <p class="points-micro">Canjea premios desde <b style="color:var(--pe-ink);font-weight:600">300 pts</b></p>
-            </div>
-            <div class="racket-wrap" id="racket-wrap" style="width:104px">
-              <div id="lap-badge-host"></div>
-              <div id="racket-rackets-host" style="display:flex;gap:6px;align-items:flex-end;justify-content:center"></div>
-              <p class="racket-caption" id="racket-caption">Racha de 0 visitas</p>
-              <p class="racket-best" id="racket-best">Mejor racha: 0</p>
-            </div>
-          </div>
-        </div>
+              <!-- Special rewards (welcome / birthday) — only render when available > 0 -->
+              <div id="specials" style="display:none"></div>
 
-        <!-- Quick actions -->
-        <div class="quick">
-          <button onclick="goPage('pg-qr')">
-            <span class="qi qi-y" style="color:#0A5586">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><line x1="14" y1="14" x2="14" y2="14.01"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="14" y1="21" x2="14" y2="21.01"/><line x1="21" y1="21" x2="21" y2="21.01"/><line x1="17.5" y1="17.5" x2="17.5" y2="17.51"/></svg>
-            </span>Mi código
-          </button>
-          <button onclick="goPage('pg-rewards')">
-            <span class="qi qi-b" style="color:var(--pe-blue)">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-            </span>Premios
-          </button>
-          <button onclick="goPage('pg-historial')">
-            <span class="qi qi-k" style="color:#17181A">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
-            </span>Historial
-          </button>
-        </div>
+              <!-- Points + racket card -->
+              <div class="card">
+                <div class="points-hero">
+                  <div style="flex:1;min-width:0">
+                    <div class="points-lbl">Puntos disponibles</div>
+                    <div class="points-num" id="pts-num">0</div>
+                    <p class="points-micro">Canjea premios desde <b id="pts-micro-min" style="color:var(--pe-ink);font-weight:600">300 pts</b></p>
+                  </div>
+                  <div class="racket-wrap" id="racket-wrap" style="width:104px">
+                    <div id="lap-badge-host"></div>
+                    <div id="racket-rackets-host" style="display:flex;gap:6px;align-items:flex-end;justify-content:center"></div>
+                    <p class="racket-caption" id="racket-caption">Racha de 0 visitas</p>
+                    <p class="racket-best" id="racket-best">Mejor racha: 0</p>
+                  </div>
+                </div>
+              </div>
 
-        <!-- Promo carousel (data-driven; replace these 3 placeholders with the club's real promos) -->
-        <div class="promo-carousel" id="promo-carousel" onscroll="syncPromoDots()">
-          <button class="promo-card" style="background:linear-gradient(120deg,#1581C5,#3BA0DF);color:#fff" onclick="toast('Promo: Torneo relámpago')">
-            <span class="promo-blob" style="background:rgba(255,255,255,.14)"></span>
-            <span class="promo-eyebrow">Torneo</span>
-            <b class="promo-title">Torneo relámpago</b>
-            <span class="promo-sub">Inscríbete antes del viernes y suma puntos dobles.</span>
-            <span class="promo-cta" style="color:var(--pe-yellow)">Inscribirme
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </span>
-          </button>
-          <button class="promo-card" style="background:var(--pe-black);color:#fff" onclick="toast('Promo: Trae un amigo')">
-            <span class="promo-blob" style="background:rgba(255,222,23,.16)"></span>
-            <span class="promo-eyebrow">Beneficio</span>
-            <b class="promo-title">Trae un amigo</b>
-            <span class="promo-sub">Clase 2x1 durante todo el mes para socios.</span>
-            <span class="promo-cta" style="color:var(--pe-yellow)">Ver detalles
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </span>
-          </button>
-          <button class="promo-card" style="background:linear-gradient(120deg,#FFDE17,#FFD000);color:var(--pe-black)" onclick="toast('Promo: Happy hour')">
-            <span class="promo-blob" style="background:rgba(0,0,0,.06)"></span>
-            <span class="promo-eyebrow">Bar del club</span>
-            <b class="promo-title">Happy hour</b>
-            <span class="promo-sub">20% en el bar de 5 a 7 pm, todos los días.</span>
-            <span class="promo-cta" style="color:#0A5586">Conocer más
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </span>
-          </button>
-        </div>
-        <div class="carousel-dots" id="promo-dots">
-          <i class="on"></i><i></i><i></i>
-        </div>
+              <!-- Unlocked rewards (rendered from JS when points >= cost) -->
+              <div id="home-unlocked" style="display:none"></div>
 
-        <!-- Wallet CTA (static) -->
-        <button class="wallet-cta" style="margin:0 0 16px" onclick="openWallet()">
-          <span class="w-ic">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-          </span>
-          <span class="w-text">
-            <span style="display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px">Añade tu tarjeta a Wallet</span>
-            <small>Tu código a un toque · Apple &amp; Google</small>
-          </span>
-          <svg class="w-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+              <!-- Quick actions -->
+              <div class="quick">
+                <button onclick="goPage('pg-qr')">
+                  <span class="qi qi-y" style="color:#0A5586">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><line x1="14" y1="14" x2="14" y2="14.01"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="14" y1="21" x2="14" y2="21.01"/><line x1="21" y1="21" x2="21" y2="21.01"/><line x1="17.5" y1="17.5" x2="17.5" y2="17.51"/></svg>
+                  </span>Mi código
+                </button>
+                <button onclick="goPage('pg-rewards')">
+                  <span class="qi qi-b" style="color:var(--pe-blue)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+                  </span>Premios
+                </button>
+                <button onclick="goPage('pg-historial')">
+                  <span class="qi qi-k" style="color:#17181A">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+                  </span>Historial
+                </button>
+              </div>
 
-        <!-- Help accordion -->
-        <div class="help-accord">
-          <div class="ha-item">
-            <button class="ha-q" onclick="this.closest('.ha-item').classList.toggle('open')">
-              <span>¿Cómo sumo puntos?</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <p class="ha-a">Muestra tu código en recepción o en el bar cada vez que reserves cancha, tomes una clase o compres en el club. Cada <b style="color:var(--pe-blue)">$1 = 10 puntos</b>.</p>
-          </div>
-          <div class="ha-item">
-            <button class="ha-q" onclick="this.closest('.ha-item').classList.toggle('open')">
-              <span>¿Cómo funciona tu racha?</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <p class="ha-a">Cada visita enciende una pelotita de tu raqueta. Visita el club al menos <b style="color:var(--pe-blue)">cada 3 días</b> para mantener tu racha viva — si pasa más tiempo, vuelve a cero.</p>
-          </div>
-        </div>
+              <!-- Promo carousel (rendered from /promos.json) -->
+              <div class="promo-carousel" id="promo-carousel" onscroll="syncPromoDots()"></div>
+              <div class="carousel-dots" id="promo-dots"></div>
+
+            </div><!-- /left col -->
+
+            <!-- RIGHT COLUMN: wallet CTA + help accordion -->
+            <div style="display:flex;flex-direction:column;gap:14px">
+
+              <!-- Wallet CTA (static) -->
+              <button class="wallet-cta" data-feature="wallet" onclick="openWallet()">
+                <span class="w-ic">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </span>
+                <span class="w-text">
+                  <span style="display:block;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px">Añade tu tarjeta a Wallet</span>
+                  <small>Tu código a un toque · Apple &amp; Google</small>
+                </span>
+                <svg class="w-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+
+              <!-- Help accordion -->
+              <div class="help-accord">
+                <div class="ha-item">
+                  <button class="ha-q" onclick="this.closest('.ha-item').classList.toggle('open')">
+                    <span>¿Cómo sumo puntos?</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <p class="ha-a">Muestra tu código en recepción o en el bar cada vez que reserves cancha, tomes una clase o compres en el club. Cada <b style="color:var(--pe-blue)">$1 = 10 puntos</b>.</p>
+                </div>
+                <div class="ha-item">
+                  <button class="ha-q" onclick="this.closest('.ha-item').classList.toggle('open')">
+                    <span>¿Cómo funciona tu racha?</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--pe-blue)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  <p class="ha-a">Cada visita enciende una pelotita de tu pala. Visita el club al menos <b style="color:var(--pe-blue)">cada 3 días</b> para mantener tu racha viva — si pasa más tiempo, vuelve a cero.</p>
+                </div>
+              </div>
+
+            </div><!-- /right col -->
+
+          </div><!-- /home-grid -->
+        </div><!-- /home-wrap -->
       </div>
 
       <!-- ===== REWARDS ===== -->
       <div class="page" id="pg-rewards">
+        <div class="rewards-wrap">
         <div class="rewards-page-header">
           <div>
             <h2>Premios</h2>
@@ -902,10 +1034,12 @@ input{font-family:inherit}
           <span class="pts-pill" id="rewards-pts-pill">0 pts</span>
         </div>
         <div id="tiers"></div>
+        </div><!-- /rewards-wrap -->
       </div>
 
       <!-- ===== HISTORIAL ===== -->
       <div class="page" id="pg-historial">
+        <div class="narrow-wrap">
         <div class="rewards-page-header">
           <div>
             <h2>Historial</h2>
@@ -916,16 +1050,18 @@ input{font-family:inherit}
           <div id="tx-list" class="mt8"><p class="sub">Cargando…</p></div>
           <button class="btn btn-ghost mt8" id="tx-more" style="display:none" onclick="loadTransactions(false)">Ver más</button>
         </div>
+        </div><!-- /narrow-wrap -->
       </div>
 
       <!-- ===== QR ===== -->
       <div class="page" id="pg-qr">
+        <div class="narrow-wrap">
         <div class="card qr-card">
           <h3>Tu código del club</h3>
           <p class="sub">Muéstralo en recepción o en el bar para sumar puntos y aplicar tus beneficios.</p>
           <div class="qr-frame"><div id="qr-box"></div></div>
           <p class="qr-token" id="qr-token"></p>
-          <button class="wallet-cta" onclick="openWallet()">
+          <button class="wallet-cta" data-feature="wallet" onclick="openWallet()">
             <span class="w-ic">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
             </span>
@@ -941,13 +1077,15 @@ input{font-family:inherit}
           <p class="sub" style="margin-top:8px;line-height:1.6">
             Presenta este QR en recepción o en el bar. El club registra tu compra y tus
             <b style="color:var(--pe-blue)">puntos y visitas</b> se actualizan al instante.
-            Cada visita enciende una pelotita de tu raqueta y suma a tu racha.
+            Cada visita enciende una pelotita de tu pala y suma a tu racha.
           </p>
         </div>
+        </div><!-- /narrow-wrap -->
       </div>
 
       <!-- ===== ACCOUNT ===== -->
       <div class="page" id="pg-account">
+        <div class="narrow-wrap">
         <div class="card">
           <!-- Profile header -->
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
@@ -970,7 +1108,16 @@ input{font-family:inherit}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               <span id="acc-phone"></span>
             </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--pe-grey)" id="acc-ced-row" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h4M6 13h2"/><circle cx="16" cy="11" r="2"/><path d="M13 15c0-1.1 1.3-2 3-2s3 .9 3 2"/></svg>
+              <span id="acc-ced"></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--pe-grey)" id="acc-bday-row" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/><line x1="12" y1="14" x2="12" y2="17"/></svg>
+              <span id="acc-bday"></span>
+            </div>
           </div>
+          <div id="acc-bday-count" style="display:none;margin-top:10px;font-size:12.5px;background:#FFF8E1;border:1px solid #FFE082;border-radius:8px;padding:8px 12px;color:#5D4037;line-height:1.5"></div>
           <p class="sub" id="acc-status" style="margin-top:8px;display:none"></p>
           <div class="mt8">
             <button class="menu-item" onclick="openEdit()">
@@ -984,6 +1131,14 @@ input{font-family:inherit}
             <button class="menu-item" onclick="window.open('https://wa.me/593999999999?text=Hola%20Padel%20Ecuador','_blank','noopener,noreferrer')">
               <span class="mi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
               WhatsApp<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <button class="menu-item" onclick="openLegal('terms')">
+              <span class="mi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+              Términos y Condiciones<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <button class="menu-item" onclick="openLegal('privacy')">
+              <span class="mi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              Política de Privacidad<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
             </button>
             <button class="menu-item" style="color:#E5484D" onclick="logout()">
               <span class="mi" style="background:rgba(229,72,77,.10)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E5484D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
@@ -1015,6 +1170,7 @@ input{font-family:inherit}
             <button class="btn btn-ghost mt8" onclick="hide('edit-card')">Cancelar</button>
           </div>
         </div>
+        </div><!-- /narrow-wrap -->
       </div>
     </div>
 
@@ -1041,7 +1197,7 @@ input{font-family:inherit}
 </div>
 
 <!-- Wallet modal -->
-<div class="modal-bg" id="wallet-bg">
+<div class="modal-bg" id="wallet-bg" data-feature="wallet">
   <div class="modal">
     <h3>Tu tarjeta del club</h3>
     <p class="sub" style="margin-top:4px">Así se verá en tu Wallet. Puntos y nivel siempre actualizados.</p>
@@ -1066,6 +1222,36 @@ input{font-family:inherit}
       </button>
     </div>
     <button class="btn btn-ghost mt8" onclick="closeWallet()">Quizás después</button>
+  </div>
+</div>
+
+<!-- Award link result modal -->
+<div class="modal-bg" id="promo-award-bg" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="text-align:center">
+    <div id="promo-award-icon" style="font-size:48px;line-height:1;margin-bottom:12px">⏳</div>
+    <h3 id="promo-award-title" style="margin-bottom:8px"></h3>
+    <p id="promo-award-body" style="font-size:13px;color:var(--pe-grey);line-height:1.6;margin-bottom:20px"></p>
+    <button class="btn btn-yellow" id="promo-award-redeem" style="display:none;margin-bottom:8px" onclick="$('promo-award-bg').classList.remove('open');goPage('pg-qr')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h1v1h-1zM17 14h1v1h-1zM14 17h1v1h-1zM17 17h3v3h-3z"/></svg>
+      Canjear ahora
+    </button>
+    <button class="btn btn-ghost" onclick="$('promo-award-bg').classList.remove('open')">Entendido</button>
+  </div>
+</div>
+
+<!-- Legal content modal (T&C / Privacy Policy) -->
+<div class="modal-bg" id="legal-bg" onclick="if(event.target===this)closeLegal()">
+  <div class="modal" style="max-height:85vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex:none">
+      <h3 id="legal-title" style="margin:0"></h3>
+      <button onclick="closeLegal()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--pe-grey)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="legal-body" style="overflow-y:auto;flex:1;font-size:13.5px;line-height:1.7;color:var(--pe-ink)">
+      <p style="color:var(--pe-grey);text-align:center;padding:32px 0">Cargando…</p>
+    </div>
+    <button class="btn btn-blue" style="flex:none;margin-top:16px" onclick="closeLegal()">Entendido</button>
   </div>
 </div>
 
@@ -1104,6 +1290,12 @@ const CONFIG = {
     RAQUETA: 10347                      // free racket reward, unlocked once the visit goal is reached
   },
   VISIT_GOAL: 36                        // fallback goal if the visitas spending rule has no cost
+};
+
+/* ---------- Feature flags ---------- */
+/* Set to false to hide a feature without deleting its code. */
+const FEATURES = {
+  wallet: false    // ← change to true to re-enable Wallet buttons and modal
 };
 
 const LS_SESSION = 'padelEC_session';   // stores { session_key, email, fn, ln, member } — no cedula: it's never read back, only used transiently to derive `member`
@@ -1222,10 +1414,24 @@ const SpoonityAPI = {
   },
 
   // POST /user/authenticate -> { session_identifier, user:{...} }
+  // On 403 (unverified) body may still include session_identifier — capture it in e.responseBody.
   async authenticate(email, password){
-    return this._post('/user/authenticate', {
-      email_address: email, password, vendor: CONFIG.VENDOR
+    if(CONFIG.DEMO_MODE) return this._mock('/user/authenticate',{email_address:email,password},'POST');
+    const r = await fetch(this._url('/user/authenticate'),{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email_address:email, password, vendor:CONFIG.VENDOR})
     });
+    const body = await this._safeJson(r);
+    if(!r.ok){
+      const first = body&&body.error&&body.error.errors&&body.error.errors[0];
+      const code = (first&&first.code)!=null ? first.code : (body&&body.error&&body.error.code);
+      const apiMsg = (first&&first.message)||(body&&body.error&&body.error.message)||null;
+      const msg = translateApiMessage(code, apiMsg, r.status);
+      const e = new Error(msg); e.status=r.status; e.code=code; e.apiMessage=apiMsg;
+      e.responseBody = body;
+      throw e;
+    }
+    return body;
   },
 
   // GET /user/reward/list?session_key=...
@@ -1278,6 +1484,27 @@ const SpoonityAPI = {
   // Wallet enrollment is a direct link (see buildWalletEnrollUrl below), not an
   // API call through this object — /user/wallet/apple and /user/wallet/google
   // don't exist on Spoonity's real API (confirmed: both return "No route found").
+
+  // GET /user/activate/email?session_identifier=... — envía email de activación
+  async sendActivationEmail(session_key){
+    return this._get('/user/activate/email', { session_identifier: session_key });
+  },
+
+  // GET /user/activate?token=...&session_identifier=... — activa la cuenta con el token
+  async activateAccount(token, session_key){
+    return this._get('/user/activate', { token, session_identifier: session_key });
+  },
+
+  async awardPromotion(code, session_key){
+    return this._post('/vendor/promotion/award.json?session_key='+encodeURIComponent(session_key), { code });
+  },
+
+  async getPrivacyPolicy(){
+    return this._get('/vendor/content/privacy-policy', { vendor: CONFIG.VENDOR });
+  },
+  async getTermsOfService(){
+    return this._get('/vendor/content/terms-of-service', { vendor: CONFIG.VENDOR });
+  },
 
   // POST /user/password-reset/reset { email_address, vendor } -> empty 200 (Spoonity emails a reset token)
   async requestReset(email){
@@ -1488,6 +1715,12 @@ function parseRewards(res){
   const visitasRule = data.find(r=>Number(currencyIdOf(r))===C.VISITS);
   const visitGoal = (visitasRule && Number(visitasRule.cost)) || CONFIG.VISIT_GOAL;
 
+  // Award-link activated rewards: available > 0 in any non-standard currency
+  const knownCurrencies = new Set([C.POINTS, C.WELCOME, C.BIRTHDAY, C.VISITS]);
+  const activeRewards = data.filter(r =>
+    !knownCurrencies.has(Number(currencyIdOf(r))) && Number(r.available) > 0
+  );
+
   return {
     points: balanceFor(C.POINTS),
     tiers,
@@ -1498,7 +1731,8 @@ function parseRewards(res){
     welcomeName: (welcome && welcome.name) || 'Premio de Bienvenida',
     birthdayName: (birthday && birthday.name) || 'Regalo de Cumpleaños',
     welcomeRuleId: welcome && welcome.id,
-    birthdayRuleId: birthday && birthday.id
+    birthdayRuleId: birthday && birthday.id,
+    activeRewards
   };
 }
 const TIER_NAMES = ['Nivel Saque','Nivel Volea','Nivel Smash'];
@@ -1616,6 +1850,47 @@ function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classLis
 function busy(btn,on,label){ if(!btn)return; if(on){btn._t=btn.textContent;btn.textContent='Un momento…';btn.disabled=true;} else {btn.textContent=label||btn._t;btn.disabled=false;} }
 
 function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)}
+
+const EMAIL_DOMAINS=[
+  'gmail.com','hotmail.com','outlook.com','yahoo.com','icloud.com',
+  'live.com','msn.com','me.com','mac.com','googlemail.com',
+];
+function suggestEmail(val){
+  if(!val||!val.includes('@'))return null;
+  const [local,domain]=val.split('@');
+  if(!domain||domain.length<3)return null;
+  // exact match — no suggestion needed
+  if(EMAIL_DOMAINS.includes(domain.toLowerCase()))return null;
+  // find closest domain by edit distance
+  let best=null,bestDist=Infinity;
+  for(const d of EMAIL_DOMAINS){
+    const dist=_editDist(domain.toLowerCase(),d);
+    if(dist<bestDist&&dist<=3){bestDist=dist;best=d;}
+  }
+  return best?`${local}@${best}`:null;
+}
+function _editDist(a,b){
+  const m=a.length,n=b.length,dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i?j?0:i:j));
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+function bindEmailSuggest(inputId,suggestId){
+  const inp=$(inputId),sug=$(suggestId);
+  if(!inp||!sug)return;
+  inp.addEventListener('blur',()=>{
+    const val=inp.value.trim().toLowerCase();
+    const fix=suggestEmail(val);
+    if(fix){
+      sug.style.display='block';
+      sug.textContent='¿Quisiste decir '+fix+'? Toca para corregir.';
+      sug._fix=fix;
+    } else { sug.style.display='none'; }
+  });
+  inp.addEventListener('input',()=>{ sug.style.display='none'; });
+  sug.addEventListener('click',()=>{
+    if(sug._fix){ inp.value=sug._fix; sug.style.display='none'; }
+  });
+}
 function validCedula(c){
   if(!/^\d{10}$/.test(c))return false;
   const prov=parseInt(c.slice(0,2),10);
@@ -1665,7 +1940,7 @@ async function doLogin(btn){
    AUTH: Register (5 steps)
    ============================================================ */
 let regData={};
-function startRegister(){regData={};showRegStep(1);goScreen('scr-register')}
+function startRegister(){regData={};showRegStep(1);goScreen('scr-register');if(pendingPromo)_applyPromoChip();}
 function showRegStep(n){
   [1,2,3,4].forEach(i=>{
     const el=$('reg-'+i);if(el)el.style.display=(i===n)?'block':'none';
@@ -1718,17 +1993,45 @@ async function regStep2(btn){
     const res=await SpoonityAPI.authenticate(regData.email,regData.pass);
     saveSession({session_key:res.session_identifier,email:regData.email,
       fn:regData.fn,ln:regData.ln,member:'PE-'+ced.slice(-6)});
-    await SpoonityAPI.updateProfile(SESSION.session_key,{
+    try{ await SpoonityAPI.updateProfile(SESSION.session_key,{
       first_name:regData.fn,last_name:regData.ln,email_address:regData.email,
       phone_number:{number:phone.replace(/^0/,''),code:'593'},
       current_password:regData.pass
-    });
-    startOnboarding();
+    }); }catch(_){ /* continue even if profile update fails on unverified account */ }
+    try{ await SpoonityAPI.sendActivationEmail(SESSION.session_key); }catch(e){ /* continue even if email fails */ }
+    $('rg-verify-email').textContent = regData.email;
+    showRegStep(3);
   }catch(e){
     busy(btn,false,'Crear cuenta');
     if(e.status===409){showRegStep(1);return setErr('rg-email-err','Este email ya tiene una cuenta. Inicia sesión.');}
     return setErr('rg-ced-err',e.message||'No pudimos crear tu cuenta. Intenta de nuevo.');
   }
+}
+async function regVerify(btn){
+  setErr('rg-verify-err','');
+  const token=$('rg-verify-token').value.trim();
+  if(!token) return setErr('rg-verify-err','Ingresa el código que recibiste por email.');
+  busy(btn,true);
+  try{
+    await SpoonityAPI.activateAccount(token, SESSION&&SESSION.session_key);
+    if(regData&&regData.fromLogin){
+      /* Vino del flujo de login — la sesión ya es válida, entrar directo */
+      await enterApp();
+    } else {
+      startOnboarding();
+    }
+  }catch(e){
+    setErr('rg-verify-err', e.message||'Código incorrecto o expirado. Intenta de nuevo.');
+  }finally{ busy(btn,false,'Verificar cuenta'); }
+}
+async function regResend(btn){
+  busy(btn,true);
+  try{
+    await SpoonityAPI.sendActivationEmail(SESSION.session_key);
+    toast('📧 Código reenviado. Revisa tu correo.');
+  }catch(e){
+    toast('No pudimos reenviar el código. Intenta en un momento.');
+  }finally{ busy(btn,false,'Reenviar código'); }
 }
 /* stubs for JS backward compat */
 function regStep3(){}
@@ -1807,8 +2110,132 @@ async function fgStep3(btn){
    App lifecycle
    ============================================================ */
 async function enterApp(){
-  goScreen('scr-app');
   await refresh(true);
+  if(pendingPromo) activatePendingPromo();
+}
+
+const _redeemParam = new URLSearchParams(window.location.search).get('redeem');
+if(_redeemParam){
+  sessionStorage.setItem('pe_pending_promo', _redeemParam);
+  const _cleanUrl = window.location.pathname + window.location.hash;
+  history.replaceState(null, '', _cleanUrl);
+}
+let pendingPromo = sessionStorage.getItem('pe_pending_promo') || null;
+let _promoMeta = null; // { title, emoji, description, cta } loaded from award_promos
+
+async function loadPromoLanding(code){
+  goScreen('scr-promo');
+  $('pl-title').textContent = 'Cargando promoción…';
+  $('pl-desc').textContent = '';
+  $('pl-emoji').textContent = '🎾';
+  $('pl-art-label').textContent = '';
+  try{
+    const PID = 'padel-ecuador-d4842';
+    const res = await fetch(`https://firestore.googleapis.com/v1/projects/${PID}/databases/(default)/documents:runQuery`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ structuredQuery:{
+        from:[{collectionId:'award_promos'}],
+        where:{ fieldFilter:{ field:{fieldPath:'code'}, op:'EQUAL', value:{stringValue:code} }},
+        limit:1
+      }})
+    });
+    const data = await res.json();
+    const f = data[0]?.document?.fields || {};
+    const s = k => f[k]?.stringValue ?? '';
+    _promoMeta = {
+      title:       s('title')       || 'Promoción especial',
+      description: s('description') || 'Inicia sesión para activar esta promoción en tu cuenta.',
+      emoji:       s('emoji')       || '🎾',
+      cta:         s('cta')         || 'Iniciar sesión para activar',
+    };
+  }catch{
+    _promoMeta = { title:'Promoción especial', description:'Inicia sesión para activar esta promoción.', emoji:'🎾', cta:'Iniciar sesión para activar' };
+  }
+  $('pl-title').textContent     = _promoMeta.title;
+  $('pl-desc').textContent      = _promoMeta.description;
+  $('pl-emoji').textContent     = _promoMeta.emoji;
+  $('pl-art-label').textContent = _promoMeta.title;
+  $('pl-btn-login').querySelector('svg').nextSibling.textContent = ' ' + _promoMeta.cta;
+}
+
+function goToLoginFromPromo(){
+  goScreen('scr-login');
+  _applyPromoChip();
+}
+function startRegisterFromPromo(){
+  startRegister();
+  _applyPromoChip();
+}
+function _applyPromoChip(){
+  if(!pendingPromo || !_promoMeta) return;
+  // Login chip
+  const chip = $('promo-claim-chip');
+  if(chip){
+    $('pcc-icon').textContent  = _promoMeta.emoji;
+    $('pcc-title').textContent = _promoMeta.title;
+    chip.classList.add('show');
+    const btn = document.querySelector('#scr-login .btn-yellow');
+    if(btn) btn.textContent = 'Entrar y activar';
+    const title = $('li-title'), sub = $('li-sub');
+    if(title) title.textContent = 'Inicia sesión';
+    if(sub)   sub.textContent   = 'Para activar la promoción en tu cuenta';
+  }
+  // Register chip
+  const chipReg = $('promo-claim-chip-reg');
+  if(chipReg){
+    $('pcc-icon-reg').textContent  = _promoMeta.emoji;
+    $('pcc-title-reg').textContent = _promoMeta.title;
+    chipReg.classList.add('show');
+  }
+}
+
+async function activatePendingPromo(){
+  const code = pendingPromo;
+  pendingPromo = null;
+  sessionStorage.removeItem('pe_pending_promo');
+  if(!SESSION||!code) return;
+  const bg=$('promo-award-bg');
+  const iconEl=$('promo-award-icon'), titleEl=$('promo-award-title'), bodyEl=$('promo-award-body');
+  if(!bg) return;
+
+  // Prevent duplicate activation for same user+code
+  const usedKey = 'padelEC_used_promos';
+  const used = JSON.parse(localStorage.getItem(usedKey)||'{}');
+  const userKey = (SESSION.email||SESSION.member||'anon') + '_' + code;
+  if(used[userKey]){
+    iconEl.textContent='ℹ️';
+    titleEl.textContent='Promoción ya activada';
+    bodyEl.innerHTML='Esta promoción ya fue aplicada a tu cuenta anteriormente.';
+    bg.classList.add('open');
+    await refresh(false).catch(()=>{});
+    const hasReward = VM?.activeRewards?.length > 0;
+    if(hasReward) bodyEl.innerHTML = 'Tu cupón sigue disponible para canjear.';
+    $('promo-award-redeem').style.display = hasReward ? 'block' : 'none';
+    renderSpecials();
+    return;
+  }
+
+  iconEl.textContent='⏳';
+  titleEl.textContent='Activando promoción…';
+  bodyEl.innerHTML='Un momento, estamos aplicando tu beneficio.';
+  bg.classList.add('open');
+  try{
+    await SpoonityAPI.awardPromotion(code, SESSION.session_key);
+    await refresh(false).catch(()=>{});
+    used[userKey] = true;
+    localStorage.setItem(usedKey, JSON.stringify(used));
+    iconEl.textContent='🎉';
+    titleEl.textContent='¡Promoción activada!';
+    const hasReward = VM?.activeRewards?.length > 0;
+    bodyEl.innerHTML = hasReward ? 'Tu cupón está listo para usar.' : 'Tu beneficio fue aplicado exitosamente a tu cuenta.';
+    $('promo-award-redeem').style.display = hasReward ? 'block' : 'none';
+    renderSpecials();
+    loadPromos();
+  }catch(e){
+    iconEl.textContent='😕';
+    titleEl.textContent='No pudimos activar la promoción';
+    bodyEl.innerHTML = e.message || 'Es posible que ya hayas usado esta promoción o que haya expirado.';
+  }
 }
 function logout(){
   clearSession();
@@ -1833,8 +2260,18 @@ async function refresh(animate){
   try{
     const res = await SpoonityAPI.getRewards(SESSION.session_key);
     VM = parseRewards(res);
+    goScreen('scr-app');
   }catch(e){
     if(e.status===401){ toast('Tu sesión expiró. Inicia sesión de nuevo.'); return logout(); }
+    if(e.status===403){
+      /* Cuenta sin verificar — enviar email y mostrar paso de verificación */
+      regData = { email: SESSION.email, pass:'', fromLogin:true };
+      $('rg-verify-email').textContent = SESSION.email;
+      try{ await SpoonityAPI.sendActivationEmail(SESSION.session_key); }catch(_){}
+      goScreen('scr-register');
+      showRegStep(3);
+      return;
+    }
     toast('No pudimos cargar tus premios. Reintenta.');
     return;
   }
@@ -1871,12 +2308,15 @@ function render(animate){
   animateCount($('pts-num'), v.points, animate?900:0);
   const ptsDes=$('pts-desktop');if(ptsDes)ptsDes.textContent=v.points.toLocaleString();
   const ptsPill=$('rewards-pts-pill');if(ptsPill)ptsPill.textContent=v.points.toLocaleString()+' pts';
+  const minCost=v.tiers&&v.tiers.length?Math.min(...v.tiers.map(t=>t.cost)):null;
+  const ptsMin=$('pts-micro-min');if(ptsMin&&minCost)ptsMin.textContent=minCost.toLocaleString()+' pts';
 
   /* Racha = VISITS currency (10346), reused directly as the streak count. */
   renderStreak(v.streak, v.visitGoal);
 
   /* Special rewards (welcome / birthday) shown only when available>0 */
   renderSpecials();
+  renderUnlockedRewards();
 
   /* Tiers + rewards from spending_rules (carousel per tier) */
   $('tiers').innerHTML = v.tiers.map((t,idx)=>{
@@ -1907,10 +2347,11 @@ function render(animate){
         <div class="carousel-dots" id="dots-${idx}">
           ${t.rewards.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}
         </div>
-        <p class="carousel-hint">Desliza para ver los ${t.rewards.length} premios →</p>
+        ${t.rewards.length > 1 ? `<p class="carousel-hint">Desliza para ver los ${t.rewards.length} premios →</p>` : ''}
       </div>
     </div>`;
   }).join('') || '<p class="sub" style="padding:14px">Cargando catálogo de premios…</p>';
+  initDragScrollAll();
 
   /* QR */
   renderMemberCode('qr-box',184,'qr-token');
@@ -1920,25 +2361,102 @@ function render(animate){
   $('acc-email').textContent=(s.email||'');
 }
 
+function renderUnlockedRewards(){
+  const v=VM, host=$('home-unlocked');
+  if(!host) return;
+  const unlocked = v.tiers
+    .filter(t => v.points >= t.cost)
+    .flatMap(t => t.rewards.map(r => ({...r, cost:t.cost, tierEmoji:t.emoji||'🎁'})));
+  if(!unlocked.length){ host.style.display='none'; return; }
+  host.innerHTML = `
+    <div class="card" style="margin-bottom:0;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+        <h3 style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:17px;color:var(--pe-ink);margin:0">🎉 Premios disponibles</h3>
+        <button onclick="goPage('pg-rewards')" style="background:none;border:none;font-size:12.5px;font-weight:600;color:var(--pe-blue);cursor:pointer;padding:0">Ver todos →</button>
+      </div>
+      <div class="home-reward-scroll" style="${unlocked.length < 4 ? 'justify-content:center' : ''}">
+        ${unlocked.map(r=>`
+          <div class="home-reward-card">
+            <div class="ri">${rewardImg(r)||rewardEmoji(r)}</div>
+            <b>${escapeHtml(r.name)}</b>
+            <button class="btn-redeem" onclick="redeemPoints(${r.cost},'${escapeJsAttr(r.name)}','${r.tierEmoji}')">Canjear</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  host.style.display='block';
+  addDragScroll(host.querySelector('.home-reward-scroll'));
+}
+
 function renderSpecials(){
   const v=VM, host=$('specials');
-  if(!host) return;
+  if(!host||!v) return;
   let html='';
+  (v.activeRewards||[]).forEach(r=>{
+    html += specialCard('welcome','🏷️', r.name, r.description&&r.description!=='tbd'?r.description:'Tu cupón está listo para usar.', "goPage('pg-qr')");
+  });
   if(v.welcomeAvailable>0){
-    html += specialCard('welcome','🎁',v.welcomeName,'Premio de bienvenida al club','Canjear', "goPage('pg-qr')");
+    html += specialCard('welcome','🎁',v.welcomeName,'Premio de bienvenida al club', "goPage('pg-qr')");
   }
   if(v.birthdayAvailable>0){
-    html += specialCard('birthday','🎂',v.birthdayName,'¡Feliz cumpleaños de parte del club! 🎉','Canjear regalo', `redeemSpecial('birthday','${escapeJsAttr(v.birthdayName)}','🎂')`);
+    html += specialCard('birthday','🎂',v.birthdayName,'¡Feliz cumpleaños de parte del club! 🎉', `redeemSpecial('birthday','${escapeJsAttr(v.birthdayName)}','🎂')`);
   }
   host.innerHTML = html;
   host.style.display = html?'block':'none';
+  applyWalletStack();
 }
-function specialCard(kind,emoji,title,sub,cta,onclick){
+function specialCard(kind,emoji,title,sub,onclick){
   return `<div class="special-card ${kind}">
-    <div class="sc-emoji">${emoji}</div>
-    <div class="sc-body"><b>${escapeHtml(title)}</b><span>${sub}</span></div>
-    <button class="btn-redeem" onclick="${onclick}">${cta}</button>
+    <div class="sc-header">
+      <span class="sc-emoji">${emoji}</span>
+      <span class="sc-badge">Cupón activo</span>
+    </div>
+    <div class="sc-title">${escapeHtml(title)}</div>
+    <div class="sc-sub">${escapeHtml(sub)}</div>
+    <button class="btn-redeem" onclick="${onclick}">Canjear ahora</button>
   </div>`;
+}
+
+function applyWalletStack(){
+  const host=$('specials');
+  if(!host) return;
+  const cards=Array.from(host.querySelectorAll('.special-card'));
+  if(cards.length<=1){
+    host.classList.remove('wallet-mode','wallet-expanded');
+    host.style.height='';
+    host.style.marginBottom='14px';
+    if(host._wClick){host.removeEventListener('click',host._wClick);host._wClick=null;}
+    return;
+  }
+  const PEEK=32, GAP=16;
+  host.classList.add('wallet-mode');
+  host.style.marginBottom='30px';
+  let expanded=false;
+  function layout(){
+    const h=cards[0].offsetHeight;
+    const n=cards.length;
+    if(expanded){
+      host.classList.add('wallet-expanded');
+      host.style.height=(h*n+GAP*(n-1))+'px';
+      cards.forEach((c,i)=>{c.style.top=(i*(h+GAP))+'px';c.style.zIndex=i+1;c.style.transform='';});
+    } else {
+      host.classList.remove('wallet-expanded');
+      host.style.height=(h+(n-1)*PEEK)+'px';
+      cards.forEach((c,i)=>{
+        // cards[0] sits at top (y=0) but behind; cards[last] peeks from below, in front
+        c.style.top=(i*PEEK)+'px';
+        c.style.zIndex=i+1;
+        c.style.transform=`scale(${1-(n-1-i)*0.025})`;
+      });
+    }
+  }
+  requestAnimationFrame(layout);
+  if(host._wClick) host.removeEventListener('click',host._wClick);
+  host._wClick=e=>{
+    if(e.target.closest('.btn-redeem')){return;}
+    expanded=!expanded;
+    layout();
+  };
+  host.addEventListener('click',host._wClick);
 }
 
 function animateCount(el,to,dur){
@@ -2028,6 +2546,147 @@ function redeemSpecial(kind, name, emoji){
   toast(emoji+' Muestra tu código QR en recepción para canjear: '+name);
   goPage('pg-qr');
 }
+/* Promo carousel — load from /promos.json and render */
+async function loadPromos(){
+  const carousel=$('promo-carousel'), dots=$('promo-dots');
+  if(!carousel) return;
+  let promos=[];
+  try{
+    const PID='padel-ecuador-d4842';
+    const res=await fetch(`https://firestore.googleapis.com/v1/projects/${PID}/databases/(default)/documents/promos`);
+    const data=await res.json();
+    if(data.documents?.length){
+      promos=data.documents.map(doc=>{
+        const f=doc.fields||{};
+        const s=k=>f[k]?.stringValue??'';
+        const n=k=>Number(f[k]?.integerValue??f[k]?.doubleValue??0);
+        return {eyebrow:s('eyebrow'),title:s('title'),sub:s('sub'),cta:s('cta'),url:s('url'),
+                bg:s('bg'),fg:s('fg'),blob:s('blob'),image:s('image'),ctaColor:s('ctaColor'),order:n('order'),
+                awardCode:s('awardCode')};
+      }).sort((a,b)=>a.order-b.order);
+    }
+  }catch(e){}
+  if(!promos.length){
+    try{promos=await fetch('/promos.json').then(r=>r.json());}catch(e){return;}
+  }
+  if(!promos.length) return;
+  const _usedPromos = JSON.parse(localStorage.getItem('padelEC_used_promos')||'{}');
+  const _userPrefix = SESSION ? (SESSION.email||SESSION.member||'anon') : null;
+  carousel.innerHTML = promos.filter(p => {
+    if(!p.awardCode || !_userPrefix) return true;
+    return !_usedPromos[_userPrefix + '_' + p.awardCode];
+  }).map((p,i)=>{
+    const hasUrl = p.url && p.url.trim();
+    const hasAward = p.awardCode && p.awardCode.trim();
+    const imgHtml = p.image
+      ? `<img src="${p.image}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.35;pointer-events:none">
+         <div style="position:absolute;inset:0;background:linear-gradient(90deg,${p.bg.includes('gradient')?'rgba(10,85,134,.88)':p.bg} 40%,rgba(0,0,0,.15) 100%);pointer-events:none"></div>`
+      : `<span class="promo-blob" style="background:${p.blob||'rgba(255,255,255,.12)'}"></span>`;
+    return `<button class="promo-card" style="background:${p.bg};color:${p.fg}" ${hasAward?`data-award-code="${p.awardCode.replace(/"/g,'&quot;')}"`:(hasUrl?`data-url="${p.url.replace(/"/g,'&quot;')}"`:'')}>${imgHtml}
+      <span class="promo-eyebrow" style="position:relative;z-index:1">${p.eyebrow}</span>
+      <b class="promo-title" style="position:relative;z-index:1">${p.title}</b>
+      <span class="promo-sub" style="position:relative;z-index:1">${p.sub}</span>
+      ${p.cta?`<span class="promo-cta" style="position:relative;z-index:1;color:${p.ctaColor}">${p.cta}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </span>`:''}
+    </button>`;
+  }).join('');
+  const visibleCount = carousel.querySelectorAll('.promo-card').length;
+  dots.innerHTML = Array.from({length:visibleCount},(_,i)=>`<i class="${i===0?'on':''}"></i>`).join('');
+  addDragScroll(carousel);
+  syncPromoDots();
+  /* Populate auth screen carousels with the same banners */
+  [['auth-promo-carousel','auth-promo-dots'],['auth-promo-carousel-reg','auth-promo-dots-reg']].forEach(([cid,did])=>{
+    const ac=$( cid), ad=$(did);
+    if(!ac) return;
+    ac.innerHTML=carousel.innerHTML;
+    ad.innerHTML=dots.innerHTML;
+    ac.addEventListener('click', e=>{
+      const card=e.target.closest('.promo-card[data-url]');
+      if(card&&!ac._dragged){
+        let url=card.dataset.url;
+        if(url&&!/^https?:\/\//i.test(url)) url='https://'+url;
+        window.open(url,'_blank','noopener,noreferrer');
+      }
+    });
+    addDragScroll(ac);
+  });
+}
+document.addEventListener('DOMContentLoaded', loadPromos);
+document.addEventListener('DOMContentLoaded', () => {
+  if (!FEATURES.wallet)
+    document.querySelectorAll('[data-feature="wallet"]').forEach(el => el.style.display = 'none');
+});
+
+/* Mouse drag-to-scroll for carousels (desktop) */
+function addDragScroll(el){
+  if(!el || el._dragBound) return;
+  el._dragBound = true;
+  let startX, startLeft, dragging = false;
+  el.addEventListener('mousedown', e => {
+    dragging = true; startX = e.pageX; startLeft = el.scrollLeft;
+    el.style.cursor = 'grabbing'; el.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  const stop = () => { dragging = false; el.style.cursor = ''; el.style.userSelect = ''; };
+  el.addEventListener('mouseleave', stop);
+  el.addEventListener('mouseup', stop);
+  el.addEventListener('mousemove', e => {
+    if(!dragging) return;
+    el.scrollLeft = startLeft - (e.pageX - startX);
+  });
+}
+function initDragScrollAll(){
+  document.querySelectorAll('.promo-carousel, .reward-carousel').forEach(addDragScroll);
+}
+document.addEventListener('DOMContentLoaded', initDragScrollAll);
+document.addEventListener('DOMContentLoaded', () => {
+  bindEmailSuggest('rg-email','rg-email-suggest');
+});
+
+/* Deep-link: ?registro abre directamente la pantalla de crear cuenta */
+document.addEventListener('DOMContentLoaded', () => {
+  if (new URLSearchParams(window.location.search).has('registro')) startRegister();
+});
+
+/* Promo carousel click — registered once, works across reloads of carousel content */
+document.addEventListener('DOMContentLoaded', () => {
+  const carousel = $('promo-carousel');
+  if(!carousel) return;
+  carousel.addEventListener('click', e => {
+    const card = e.target.closest('.promo-card');
+    if(!card) return;
+    if(card.dataset.awardCode){
+      pendingPromo = card.dataset.awardCode;
+      if(SESSION) activatePendingPromo();
+      else goPage('pg-login');
+    } else if(card.dataset.url){
+      let url = card.dataset.url;
+      if(url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+      window.open(url,'_blank','noopener,noreferrer');
+    }
+  });
+});
+
+/* Enter key submits the primary action in each auth form step */
+document.addEventListener('DOMContentLoaded', () => {
+  const enterBindings = [
+    { ids: ['li-email','li-pass'],            fn: () => doLogin(document.querySelector('#scr-login .btn-yellow')) },
+    { ids: ['rg-email','rg-pass','rg-fn','rg-ln'], fn: () => regStep1(document.querySelector('#reg-1 .btn-blue')) },
+    { ids: ['rg-ced','rg-phone','rg-bday'],   fn: () => regStep2(document.querySelector('#reg-2 .btn-yellow')) },
+    { ids: ['fg-email'],                       fn: () => fgStep1(document.querySelector('#fg-1 .btn-blue')) },
+    { ids: ['fg-token'],                       fn: () => fgStep2() },
+    { ids: ['rg-verify-token'],                fn: () => regVerify(document.querySelector('#reg-3 .btn-blue')) },
+    { ids: ['fg-pass','fg-pass2'],             fn: () => fgStep3(document.querySelector('#fg-3 .btn-yellow')) },
+  ];
+  enterBindings.forEach(({ ids, fn }) => {
+    ids.forEach(id => {
+      const el = $(id);
+      if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); fn(); } });
+    });
+  });
+});
+
 /* Promo carousel: highlight the active dot based on scroll position */
 function syncPromoDots(){
   const el=$('promo-carousel'), dots=$('promo-dots'); if(!el||!dots)return;
@@ -2075,6 +2734,28 @@ function openWallet(){
 }
 function closeWallet(){$('wallet-bg').classList.remove('open')}
 
+const _legalCache = {};
+async function openLegal(type){
+  const bg=$('legal-bg'), title=$('legal-title'), body=$('legal-body');
+  title.textContent='';
+  body.innerHTML='<p style="color:var(--pe-grey);text-align:center;padding:32px 0">Cargando…</p>';
+  bg.classList.add('open');
+  try{
+    if(!_legalCache[type]){
+      const res = type==='privacy'
+        ? await SpoonityAPI.getPrivacyPolicy()
+        : await SpoonityAPI.getTermsOfService();
+      _legalCache[type] = res;
+    }
+    const data = _legalCache[type];
+    title.textContent = data.title||'';
+    body.innerHTML = data.content||'<p>Sin contenido disponible.</p>';
+  }catch(e){
+    body.innerHTML='<p style="color:var(--pe-grey);text-align:center;padding:32px 0">No se pudo cargar el contenido. Intenta de nuevo.</p>';
+  }
+}
+function closeLegal(){$('legal-bg').classList.remove('open')}
+
 // Wallet enrollment: a single universal link (Spoonity's passkit service detects
 // Apple/Google automatically) — not an API call, just open the URL.
 //   https://spoonity-passkit.onrender.com/enroll/{enrollmentId}?v={vendor}
@@ -2119,6 +2800,28 @@ async function loadProfile(){
     $('acc-email').textContent=(u.email_address||SESSION.email||'');
     $('acc-phone').textContent = u.phone_number ? '+'+u.phone_number : '';
     const phoneRow=$('acc-phone-row');if(phoneRow)phoneRow.style.display=u.phone_number?'flex':'none';
+    const cedMeta = (PROFILE.metadata||[]).find(m=>m.user_metadataField_id===19);
+    const cedVal = cedMeta && cedMeta.value;
+    const cedRow=$('acc-ced-row');
+    if(cedRow){ cedRow.style.display=cedVal?'flex':'none'; }
+    const cedEl=$('acc-ced'); if(cedEl&&cedVal) cedEl.textContent=cedVal;
+    const bdate = u.birthdate;
+    const bdRow=$('acc-bday-row'), bdEl=$('acc-bday'), bdCount=$('acc-bday-count');
+    if(bdate && bdRow){
+      const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      const d = new Date(bdate*1000);
+      if(bdEl) bdEl.textContent = d.getUTCDate()+' de '+MESES[d.getUTCMonth()];
+      bdRow.style.display='flex';
+      if(bdCount){
+        const hoy=new Date(), next=new Date(hoy.getFullYear(),d.getUTCMonth(),d.getUTCDate());
+        if(next<=hoy) next.setFullYear(hoy.getFullYear()+1);
+        const dias=Math.ceil((next-hoy)/(864e5));
+        bdCount.style.display='block';
+        bdCount.textContent = dias===0
+          ? '🎂 ¡Feliz cumpleaños! Tu regalo de cumpleaños está disponible.'
+          : `🎂 Tu próximo regalo de cumpleaños es en ${dias} día${dias===1?'':'s'}.`;
+      }
+    }
     const verified = PROFILE.is_verified && PROFILE.is_verified.status;
     $('acc-status').style.display='none';
     // Refresh header + sidebar (avatar initials, greeting name) with the corrected identity.
@@ -2153,12 +2856,13 @@ async function saveProfile(){
   if(!currentPass)return setErr('ed-pass0-err','Ingresa tu contraseña actual para guardar.');
   if(newPass && newPass.length<6)return setErr('ed-pass1-err','Mínimo 6 caracteres.');
   try{
-    await SpoonityAPI.updateProfile(SESSION.session_key, {
+    const patch = {
       first_name:fn, last_name:ln, email_address:email,
       phone_number:{ number:phone.replace(/^0/,''), code:'593' },
       current_password:currentPass
-    });
-    if(newPass) await SpoonityAPI.changePassword(SESSION.session_key, currentPass, newPass);
+    };
+    if(newPass) patch.password = newPass;
+    await SpoonityAPI.updateProfile(SESSION.session_key, patch);
     SESSION.email=email; SESSION.fn=fn; SESSION.ln=ln; saveSession(SESSION);
     hide('edit-card');
     await loadProfile();
@@ -2242,6 +2946,7 @@ document.addEventListener('click',e=>{
 
 /* ---------- Boot ---------- */
 if(SESSION){ enterApp(); }
+else if(pendingPromo){ loadPromoLanding(pendingPromo); }
 
 </script>
 </body>

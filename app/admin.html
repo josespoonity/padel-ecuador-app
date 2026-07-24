@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin · Padel Ecuador</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="/__/firebase/init.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:#EEF4F9;min-height:100vh;color:#23303B}
+
+    /* ── Login / Unauth ── */
+    #scr-login,#scr-unauth{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+    .login-card,.unauth-card{background:#fff;border-radius:24px;padding:48px 40px;max-width:400px;width:100%;text-align:center;box-shadow:0 8px 40px rgba(21,129,197,.12)}
+    .login-logo{font-family:'Fredoka',sans-serif;font-size:28px;font-weight:600;color:#1581C5;margin-bottom:8px}
+    .login-sub{color:#6B7A87;font-size:14px;margin-bottom:32px}
+    .btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border:1.5px solid #E0E7EF;border-radius:12px;background:#fff;font-size:15px;font-weight:500;color:#23303B;cursor:pointer;transition:background .15s}
+    .btn-google:hover{background:#F4F8FB}
+    .login-error{color:#E53E3E;font-size:13px;margin-top:14px;display:none}
+
+    #scr-unauth{display:none}
+
+    /* ── App shell ── */
+    #scr-app{display:none;min-height:100vh;flex-direction:column}
+
+    .admin-header{background:#1581C5;color:#fff;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;flex:none}
+    .admin-logo{font-family:'Fredoka',sans-serif;font-size:20px;font-weight:600}
+    .admin-right{display:flex;align-items:center;gap:12px}
+    .admin-email{font-size:13px;opacity:.8}
+    .btn-logout{background:rgba(255,255,255,.18);border:none;color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer}
+    .btn-logout:hover{background:rgba(255,255,255,.28)}
+
+    /* ── Tab nav ── */
+    .admin-tabs{background:#fff;border-bottom:1px solid #E0EAF2;padding:0 28px;display:flex;gap:0;flex:none}
+    .tab-btn{padding:14px 20px;font-size:14px;font-weight:500;color:#6B7A87;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+    .tab-btn:hover{color:#1581C5}
+    .tab-btn.active{color:#1581C5;border-bottom-color:#1581C5;font-weight:600}
+    .tab-count{background:#EDF5FB;color:#1581C5;border-radius:99px;font-size:11px;font-weight:700;padding:1px 7px;min-width:18px;text-align:center}
+    .tab-btn.active .tab-count{background:#1581C5;color:#fff}
+
+    /* ── Section panels ── */
+    .section-panel{display:none}
+    .section-panel.active{display:block}
+
+    .admin-main{max-width:860px;margin:0 auto;padding:32px 24px}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .section-title{font-size:20px;font-weight:600;color:#17181A}
+    .section-desc{font-size:13px;color:#6B7A87;margin-top:2px}
+    .btn-add{background:#1581C5;color:#fff;border:none;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap}
+    .btn-add:hover{background:#1270AB}
+
+    /* ── Banner list ── */
+    .banner-list{display:flex;flex-direction:column;gap:10px}
+    .banner-item{background:#fff;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(21,129,197,.06)}
+    .banner-swatch{width:72px;height:50px;border-radius:10px;flex:none;overflow:hidden;position:relative}
+    .banner-swatch-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+    .banner-swatch-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5);padding:4px;text-align:center;line-height:1.2}
+    .banner-info{flex:1;min-width:0}
+    .banner-eyebrow{font-size:11px;color:#6B7A87;font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+    .banner-title-text{font-size:15px;font-weight:600;color:#17181A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .banner-meta{display:flex;gap:8px;margin-top:3px;flex-wrap:wrap}
+    .meta-chip{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500}
+    .meta-chip.url{background:#EDF5FB;color:#1581C5}
+    .meta-chip.promo{background:#FFF8E1;color:#8B6914;border:1px solid #FFE082}
+    .banner-actions{display:flex;gap:6px;flex:none}
+    .btn-icon{background:#F4F8FB;border:none;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .12s}
+    .btn-icon:hover{background:#D8EBF7}
+    .btn-icon.danger:hover{background:#FFF0F0;color:#E53E3E}
+    .empty-state{text-align:center;padding:56px 24px;color:#6B7A87;font-size:15px;background:#fff;border-radius:16px}
+
+    /* ── Promo list ── */
+    .promo-list{display:flex;flex-direction:column;gap:10px}
+    .promo-item{background:#fff;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(21,129,197,.06)}
+    .promo-thumb{width:72px;height:50px;border-radius:10px;flex:none;overflow:hidden;background:linear-gradient(135deg,#1581C5,#0A4070);display:flex;align-items:center;justify-content:center;font-size:24px;position:relative}
+    .promo-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px}
+    .promo-info{flex:1;min-width:0}
+    .promo-code-badge{font-family:monospace;font-size:10.5px;background:#F4F8FB;border:1px solid #D8E6F0;border-radius:6px;padding:1px 7px;color:#6B7A87;margin-bottom:4px;display:inline-block}
+    .promo-title-text{font-size:15px;font-weight:600;color:#17181A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .promo-expiry{font-size:11px;color:#6B7A87;margin-top:2px}
+    .status-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px}
+    .status-pill.active{background:#DCFCE7;color:#166534}
+    .status-pill.inactive{background:#F1F5F9;color:#64748B}
+    .status-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+    /* ── Copy link btn ── */
+    .btn-copy{background:#F4F8FB;border:1px solid #D8E6F0;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:500;color:#1581C5;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background .12s}
+    .btn-copy:hover{background:#D8EBF7}
+    .btn-copy.copied{color:#16A34A;border-color:#BBF7D0;background:#DCFCE7}
+
+    /* ── Modal ── */
+    #modal-overlay,#promo-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-start;justify-content:center;padding:24px 16px;z-index:100;overflow-y:auto}
+    #modal-overlay.open,#promo-modal-overlay.open{display:flex}
+    .modal{background:#fff;border-radius:20px;width:100%;max-width:760px;display:flex;flex-direction:column;margin:auto}
+    .modal-header{padding:20px 24px 16px;border-bottom:1px solid #EDF5FB;display:flex;align-items:center;justify-content:space-between}
+    .modal-title{font-size:18px;font-weight:600;color:#17181A}
+    .btn-close{background:#F4F8FB;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:18px;color:#6B7A87;display:flex;align-items:center;justify-content:center}
+    .btn-close:hover{background:#E2EEF7}
+    .modal-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    @media(max-width:600px){.modal-body{grid-template-columns:1fr}}
+    .modal-form{padding:20px 24px;overflow-y:auto;max-height:70vh}
+    .modal-preview-pane{padding:20px 24px;background:#F4F8FB;border-radius:0 0 20px 0}
+    @media(max-width:600px){.modal-preview-pane{border-radius:0 0 20px 20px}}
+
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:11px;font-weight:600;color:#6B7A87;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+    .field input,.field textarea,.field select{width:100%;padding:9px 12px;border:1.5px solid #E0E7EF;border-radius:10px;font-size:14px;font-family:'Inter',sans-serif;color:#23303B;outline:none;transition:border .15s;background:#fff}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:#1581C5}
+    .field textarea{resize:vertical;min-height:70px}
+    .field-hint{font-size:11px;color:#6B7A87;margin-top:4px;line-height:1.4}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .color-row{display:flex;gap:8px;align-items:center}
+    .color-row input[type=color]{width:38px;height:38px;padding:2px;border:1.5px solid #E0E7EF;border-radius:8px;cursor:pointer;background:#fff;flex:none}
+    .color-row input[type=text]{flex:1}
+    .field-divider{height:1px;background:#EDF5FB;margin:16px 0}
+    .field-section-label{font-size:11px;font-weight:700;color:#1581C5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+    .modal-footer{padding:16px 24px;border-top:1px solid #EDF5FB;display:flex;gap:10px;justify-content:flex-end}
+    .btn-cancel{background:#F4F8FB;border:none;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;color:#23303B}
+    .btn-cancel:hover{background:#E2EEF7}
+    .btn-save{background:#1581C5;color:#fff;border:none;padding:10px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+    .btn-save:hover{background:#1270AB}
+    .btn-save:disabled{opacity:.5;cursor:not-allowed}
+
+    /* ── Banner preview ── */
+    .preview-label{font-size:11px;font-weight:600;color:#6B7A87;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px}
+    .promo-preview{border-radius:16px;padding:20px 18px;min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;position:relative;overflow:hidden;background:#1581C5;color:#fff}
+    .pp-eyebrow{font-size:11px;font-weight:600;opacity:.8;letter-spacing:.3px}
+    .pp-title{font-size:18px;font-weight:700;line-height:1.2}
+    .pp-sub{font-size:12px;opacity:.85;line-height:1.4}
+    .pp-cta{display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-top:6px;align-self:flex-start}
+
+    /* ── Award promo preview (modal in app) ── */
+    .award-preview-wrap{margin-top:16px}
+    .award-preview-label{font-size:11px;font-weight:600;color:#6B7A87;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px}
+    .award-preview-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.12);overflow:hidden}
+    .award-preview-img{height:120px;background:linear-gradient(135deg,#1065A0,#1A7AB5);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .award-preview-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .award-preview-img-overlay{position:absolute;inset:0;background:rgba(0,0,0,.3)}
+    .award-preview-emoji{font-size:40px;position:relative;z-index:1}
+    .award-preview-body{padding:14px 16px}
+    .award-preview-title{font-size:16px;font-weight:700;color:#17181A;margin-bottom:4px}
+    .award-preview-desc{font-size:12px;color:#6B7A87;line-height:1.5;margin-bottom:10px}
+    .award-preview-meta{display:flex;gap:8px;flex-wrap:wrap}
+    .award-meta-chip{font-size:11px;background:#EDF5FB;color:#1581C5;border-radius:99px;padding:2px 10px;font-weight:600}
+    .award-preview-btn{margin-top:12px;width:100%;background:#FFDE17;color:#17181A;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:default}
+
+    /* ── Spending rule select ── */
+    .sr-select{width:100%;padding:9px 12px;border:1.5px solid #E0E7EF;border-radius:10px;font-size:14px;font-family:'Inter',sans-serif;color:#23303B;outline:none;transition:border .15s;background:#fff;cursor:pointer}
+    .sr-select:focus{border-color:#1581C5}
+    .sr-select:disabled{background:#F4F8FB;color:#A0ADB8;cursor:not-allowed}
+    .sr-selected-card{background:#EDF5FB;border:1px solid #B8DDEF;border-radius:10px;padding:10px 12px;margin-top:6px;display:none}
+    .sr-selected-name{font-size:13px;font-weight:600;color:#1581C5;margin-bottom:2px}
+    .sr-selected-desc{font-size:11.5px;color:#6B7A87;line-height:1.4}
+
+    /* ── Settings ── */
+    .settings-card{background:#fff;border-radius:16px;padding:20px 24px;box-shadow:0 2px 12px rgba(21,129,197,.06);margin-bottom:16px}
+    .settings-card h3{font-size:15px;font-weight:600;color:#17181A;margin-bottom:4px}
+    .settings-card p{font-size:13px;color:#6B7A87;margin-bottom:16px;line-height:1.5}
+    .api-key-row{display:flex;gap:8px;align-items:center}
+    .api-key-input{flex:1;padding:9px 12px;border:1.5px solid #E0E7EF;border-radius:10px;font-size:13.5px;font-family:monospace;color:#23303B;outline:none;background:#fff;transition:border .15s}
+    .api-key-input:focus{border-color:#1581C5}
+    .btn-save-key{background:#1581C5;color:#fff;border:none;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+    .btn-save-key:hover{background:#1270AB}
+    .key-status{font-size:12px;margin-top:6px;display:none}
+    .key-status.ok{color:#16A34A}
+    .key-status.err{color:#DC2626}
+    .settings-preview{background:#F4F8FB;border-radius:10px;padding:12px 14px;margin-top:12px;display:none}
+    .settings-preview-label{font-size:11px;font-weight:600;color:#6B7A87;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+    .sr-preview-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+    .sr-preview-item{font-size:12.5px;color:#23303B;padding:6px 10px;background:#fff;border-radius:8px;border:1px solid #E0EAF2}
+    .sr-preview-item span{color:#6B7A87;font-size:11px;margin-left:6px}
+
+    /* ── Toggle switch ── */
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+    .toggle-label{font-size:13px;font-weight:500;color:#23303B}
+    .toggle{position:relative;width:44px;height:24px;flex:none}
+    .toggle input{opacity:0;width:0;height:0;position:absolute}
+    .toggle-track{position:absolute;inset:0;background:#CBD5E1;border-radius:99px;cursor:pointer;transition:background .2s}
+    .toggle input:checked+.toggle-track{background:#1581C5}
+    .toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);pointer-events:none}
+    .toggle input:checked~.toggle-thumb{transform:translateX(20px)}
+
+    /* ── URL generator ── */
+    .url-generator{background:#EDF5FB;border:1px solid #C3DDEF;border-radius:10px;padding:12px 14px;margin-top:6px}
+    .url-generator-label{font-size:11px;font-weight:600;color:#6B7A87;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+    .url-display{font-family:monospace;font-size:12px;color:#1581C5;word-break:break-all;line-height:1.5;margin-bottom:8px}
+    .url-actions{display:flex;gap:8px}
+  </style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="scr-login">
+  <div class="login-card">
+    <div class="login-logo">Padel Ecuador</div>
+    <p class="login-sub">Panel de administración</p>
+    <button class="btn-google" id="btn-google">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.658 14.078 17.64 11.77 17.64 9.2z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/>
+      </svg>
+      Continuar con Google
+    </button>
+    <p class="login-error" id="login-error"></p>
+  </div>
+</div>
+
+<!-- ── Unauthorized ── -->
+<div id="scr-unauth">
+  <div class="unauth-card">
+    <div style="font-size:48px;margin-bottom:16px">🔒</div>
+    <h2 style="font-size:20px;font-weight:600;margin-bottom:8px">Sin acceso</h2>
+    <p style="color:#6B7A87;font-size:14px;margin-bottom:24px">Tu cuenta no está autorizada para el panel admin.</p>
+    <button class="btn-cancel" style="width:100%" onclick="firebase.auth().signOut()">Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- ── App ── -->
+<div id="scr-app" style="flex-direction:column">
+  <header class="admin-header">
+    <span class="admin-logo">Padel Ecuador · Admin</span>
+    <div class="admin-right">
+      <span class="admin-email" id="user-email"></span>
+      <button class="btn-logout" onclick="firebase.auth().signOut()">Salir</button>
+    </div>
+  </header>
+
+  <nav class="admin-tabs">
+    <button class="tab-btn active" onclick="switchTab('banners')" id="tab-banners">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Banners
+      <span class="tab-count" id="tab-count-banners">0</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('promos')" id="tab-promos">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      Links Promocionales
+      <span class="tab-count" id="tab-count-promos">0</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('ajustes')" id="tab-ajustes">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Ajustes
+    </button>
+  </nav>
+
+  <main class="admin-main">
+
+    <!-- ── Banners section ── -->
+    <div class="section-panel active" id="panel-banners">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Banners del home</h1>
+          <p class="section-desc">Se muestran en el carrusel de la pantalla principal.</p>
+        </div>
+        <button class="btn-add" onclick="openBannerModal(null)">+ Agregar banner</button>
+      </div>
+      <div class="banner-list" id="banner-list">
+        <div class="empty-state">Cargando...</div>
+      </div>
+    </div>
+
+    <!-- ── Ajustes section ── -->
+    <div class="section-panel" id="panel-ajustes">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Ajustes</h1>
+          <p class="section-desc">Configuración de integración con Spoonity.</p>
+        </div>
+      </div>
+      <div class="settings-card">
+        <h3>API Key de Spoonity</h3>
+        <p>Necesaria para cargar los spending rules en los modales de banners y promociones. Se guarda de forma segura en Firestore y solo es accesible para administradores autenticados.</p>
+        <div class="api-key-row">
+          <input class="api-key-input" type="password" id="setting-api-key" placeholder="Pega tu API key aquí…">
+          <button class="btn-save-key" onclick="saveApiKey()">Guardar</button>
+          <button class="btn-save-key" style="background:#F4F8FB;color:#1581C5;border:1px solid #D8E6F0" onclick="testApiKey()">Probar</button>
+        </div>
+        <p class="key-status" id="key-status"></p>
+        <div class="settings-preview" id="settings-preview">
+          <div class="settings-preview-label">Spending rules disponibles</div>
+          <div class="sr-preview-list" id="sr-preview-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Promos section ── -->
+    <div class="section-panel" id="panel-promos">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Links Promocionales</h1>
+          <p class="section-desc">Códigos que se activan desde la app o vía enlace externo.</p>
+        </div>
+        <button class="btn-add" onclick="openPromoModal(null)">+ Nuevo link</button>
+      </div>
+      <div class="promo-list" id="promo-list">
+        <div class="empty-state">Cargando...</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: BANNER
+══════════════════════════════════════ -->
+<div id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Agregar banner</span>
+      <button class="btn-close" onclick="closeBannerModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-form">
+        <div class="field">
+          <label>Etiqueta (eyebrow)</label>
+          <input id="f-eyebrow" type="text" placeholder="Ej: Torneo, Beneficio, Novedad" oninput="updateBannerPreview()">
+        </div>
+        <div class="field">
+          <label>Título *</label>
+          <input id="f-title" type="text" placeholder="Ej: Torneo relámpago" oninput="updateBannerPreview()">
+        </div>
+        <div class="field">
+          <label>Subtítulo</label>
+          <textarea id="f-sub" placeholder="Descripción corta" oninput="updateBannerPreview()"></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Texto del botón</label>
+            <input id="f-cta" type="text" placeholder="Ej: Ver más" oninput="updateBannerPreview()">
+          </div>
+          <div class="field">
+            <label>URL del botón</label>
+            <input id="f-url" type="text" placeholder="https://...">
+            <p class="field-hint">Se abre al hacer clic</p>
+          </div>
+        </div>
+
+        <div class="field-divider"></div>
+        <div class="field-section-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Award Link (opcional)
+        </div>
+        <div class="field">
+          <label>Código de promoción</label>
+          <input id="f-award-code" type="text" placeholder="Pega aquí el código de Spoonity" oninput="updateBannerPreview()">
+          <p class="field-hint">Si se especifica, al hacer clic en el banner se activa la promoción en lugar de abrir la URL.</p>
+        </div>
+        <div class="field" id="banner-sr-field" style="display:none">
+          <label>Spending rule asociado</label>
+          <select class="sr-select" id="f-spending-rule" onchange="onBannerSrChange()">
+            <option value="">— Ninguno —</option>
+          </select>
+          <div class="sr-selected-card" id="banner-sr-card">
+            <div class="sr-selected-name" id="banner-sr-name"></div>
+            <div class="sr-selected-desc" id="banner-sr-desc"></div>
+          </div>
+          <p class="field-hint">El spending rule que el usuario podrá ver/usar al activar el award link.</p>
+        </div>
+
+        <div class="field-divider"></div>
+        <div class="field-section-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Diseño
+        </div>
+        <div class="field">
+          <label>Fondo</label>
+          <div class="color-row">
+            <input type="color" id="f-bg-picker" value="#1581C5" oninput="gv('f-bg').value=this.value;updateBannerPreview()">
+            <input id="f-bg" type="text" placeholder="#1581C5 o linear-gradient(...)" oninput="syncBgPicker();updateBannerPreview()">
+          </div>
+          <p class="field-hint">Color (#1581C5) o gradiente CSS</p>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Color de texto</label>
+            <div class="color-row">
+              <input type="color" id="f-fg-picker" value="#ffffff" oninput="gv('f-fg').value=this.value;updateBannerPreview()">
+              <input id="f-fg" type="text" placeholder="#ffffff" oninput="updateBannerPreview()">
+            </div>
+          </div>
+          <div class="field">
+            <label>Color del botón</label>
+            <div class="color-row">
+              <input type="color" id="f-ctaColor-picker" value="#FFDE17" oninput="gv('f-ctaColor').value=this.value;updateBannerPreview()">
+              <input id="f-ctaColor" type="text" placeholder="#FFDE17" oninput="updateBannerPreview()">
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Imagen de fondo (URL)</label>
+          <input id="f-image" type="text" placeholder="https://..." oninput="updateBannerPreview()">
+          <p class="field-hint">Se muestra detrás del texto con overlay oscuro</p>
+        </div>
+      </div>
+
+      <div class="modal-preview-pane">
+        <p class="preview-label">Vista previa</p>
+        <div class="promo-preview" id="preview-card">
+          <span class="pp-eyebrow" id="preview-eyebrow"></span>
+          <b class="pp-title" id="preview-title">Título del banner</b>
+          <span class="pp-sub" id="preview-sub"></span>
+          <span class="pp-cta" id="preview-cta" style="display:none"></span>
+        </div>
+        <div id="preview-award-note" style="display:none;margin-top:10px;font-size:11.5px;background:#FFF8E1;border:1px solid #FFE082;border-radius:8px;padding:8px 10px;color:#8B6914;line-height:1.5">
+          🏷️ Al hacer clic se activará la promoción: <b id="preview-award-code-text" style="font-family:monospace"></b>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeBannerModal()">Cancelar</button>
+      <button class="btn-save" id="btn-banner-save" onclick="saveBanner()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: PROMOCIÓN
+══════════════════════════════════════ -->
+<div id="promo-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="promo-modal-title">Nuevo link promocional</span>
+      <button class="btn-close" onclick="closePromoModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-form">
+
+        <div class="field-section-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Código Award Link
+        </div>
+        <div class="field">
+          <label>Código de promoción *</label>
+          <input id="pf-code" type="text" placeholder="Pega aquí el código de Spoonity" oninput="updatePromoPreview();updateUrlDisplay()">
+          <p class="field-hint">El código que genera Spoonity para este award link.</p>
+        </div>
+        <div class="field">
+          <label>Spending rule asociado</label>
+          <select class="sr-select" id="pf-spending-rule" onchange="onPromoSrChange()">
+            <option value="">— Ninguno —</option>
+          </select>
+          <div class="sr-selected-card" id="promo-sr-card">
+            <div class="sr-selected-name" id="promo-sr-name"></div>
+            <div class="sr-selected-desc" id="promo-sr-desc"></div>
+          </div>
+          <p class="field-hint">El spending rule que el usuario podrá usar al activar esta promoción.</p>
+        </div>
+        <div class="url-generator" id="promo-url-box" style="display:none">
+          <div class="url-generator-label">Enlace externo generado</div>
+          <div class="url-display" id="promo-url-display"></div>
+          <div class="url-actions">
+            <button class="btn-copy" id="btn-copy-url" onclick="copyPromoUrl()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copiar enlace
+            </button>
+          </div>
+        </div>
+
+        <div class="field-divider"></div>
+        <div class="field-section-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Contenido del modal
+        </div>
+        <div class="field">
+          <label>Título *</label>
+          <input id="pf-title" type="text" placeholder="Ej: 500 puntos de bienvenida" oninput="updatePromoPreview()">
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <textarea id="pf-desc" placeholder="Explica el beneficio al usuario..." oninput="updatePromoPreview()"></textarea>
+        </div>
+        <div class="field">
+          <label>Imagen (URL, opcional)</label>
+          <input id="pf-image" type="text" placeholder="https://..." oninput="updatePromoPreview()">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Emoji (sin imagen)</label>
+            <input id="pf-emoji" type="text" placeholder="🎾" maxlength="4" oninput="updatePromoPreview()">
+          </div>
+          <div class="field">
+            <label>Texto del botón CTA</label>
+            <input id="pf-cta" type="text" placeholder="Iniciar sesión para activar" oninput="updatePromoPreview()">
+          </div>
+        </div>
+
+        <div class="field-divider"></div>
+        <div class="field-section-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Configuración
+        </div>
+        <div class="field">
+          <label>Fecha de expiración (opcional)</label>
+          <input id="pf-expires" type="date" oninput="updatePromoPreview()">
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Promoción activa</span>
+          <label class="toggle">
+            <input type="checkbox" id="pf-active" checked onchange="updatePromoPreview()">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-preview-pane" style="border-radius:0 0 0 0">
+        <p class="preview-label">Vista previa en la app</p>
+        <div class="award-preview-card">
+          <div class="award-preview-img" id="ap-img">
+            <div class="award-preview-img-overlay"></div>
+            <div class="award-preview-emoji" id="ap-emoji">🎾</div>
+          </div>
+          <div class="award-preview-body">
+            <div class="award-preview-title" id="ap-title">Título de la promoción</div>
+            <div class="award-preview-desc" id="ap-desc">Descripción de la promoción aparecerá aquí.</div>
+            <div class="award-preview-meta" id="ap-meta"></div>
+            <button class="award-preview-btn" id="ap-btn">Iniciar sesión para activar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closePromoModal()">Cancelar</button>
+      <button class="btn-save" id="btn-promo-save" onclick="savePromo()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const APP_DOMAIN = 'https://padelecuador.spnty.co';
+
+let auth, db, googleProvider;
+try {
+  auth           = firebase.auth();
+  db             = firebase.firestore();
+  googleProvider = new firebase.auth.GoogleAuthProvider();
+} catch(e) {
+  document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;font-family:sans-serif"><div style="background:#fff;border-radius:16px;padding:32px;max-width:480px;text-align:center"><div style="font-size:40px;margin-bottom:12px">⚠️</div><h2 style="margin-bottom:8px">Error de configuración Firebase</h2><p style="color:#666;font-size:14px;margin-bottom:12px">Verifica que estás en el dominio de Firebase Hosting.</p><code style="background:#f4f4f4;padding:8px 12px;border-radius:8px;font-size:12px;display:block">${e.message}</code></div></div>`;
+  throw e;
+}
+
+let currentUser = null;
+let editingBannerId = null;
+let editingPromoId  = null;
+let banners = [];
+let promos  = [];
+let spendingRules = [];  // cached from API
+let apiKey = null;       // loaded from Firestore config/vendor
+
+// ─────────────────────────────────────
+// Auth
+// ─────────────────────────────────────
+const GOOGLE_BTN_HTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.658 14.078 17.64 11.77 17.64 9.2z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg> Continuar con Google`;
+
+async function handleUser(user){
+  if(!user){
+    const btn = gv('btn-google');
+    btn.disabled = false;
+    btn.innerHTML = GOOGLE_BTN_HTML;
+    show('scr-login');
+    return;
+  }
+  currentUser = user;
+  gv('user-email').textContent = user.email;
+  const ok = await checkAdmin(user.email);
+  show(ok ? 'scr-app' : 'scr-unauth');
+  if(ok){ listenBanners(); listenPromos(); loadApiKey(); }
+}
+
+auth.onAuthStateChanged(user => handleUser(user));
+
+gv('btn-google').onclick = async () => {
+  const el = gv('login-error');
+  el.style.display = 'none';
+  const btn = gv('btn-google');
+  btn.disabled = true; btn.textContent = 'Abriendo...';
+  const reset = setTimeout(() => { btn.disabled = false; btn.innerHTML = GOOGLE_BTN_HTML; }, 10000);
+  try {
+    await auth.signInWithPopup(googleProvider);
+    clearTimeout(reset);
+  } catch(e) {
+    clearTimeout(reset);
+    if(!['auth/popup-closed-by-user','auth/cancelled-popup-request'].includes(e.code)){
+      el.textContent = e.code === 'auth/popup-blocked' ? 'Popup bloqueado. Permite popups e intenta de nuevo.' : 'Error: ' + e.message;
+      el.style.display = 'block';
+    }
+    btn.disabled = false; btn.innerHTML = GOOGLE_BTN_HTML;
+  }
+};
+
+async function checkAdmin(email){
+  try{
+    const doc = await db.collection('config').doc('admins').get();
+    if(!doc.exists){ await db.collection('config').doc('admins').set({emails:[email]}); return true; }
+    return (doc.data().emails||[]).includes(email);
+  }catch(e){ return false; }
+}
+
+// ─────────────────────────────────────
+// Tab navigation
+// ─────────────────────────────────────
+function switchTab(name){
+  ['banners','promos','ajustes'].forEach(t => {
+    const tab = gv('tab-'+t);
+    const panel = gv('panel-'+t);
+    if(tab) tab.classList.toggle('active', t===name);
+    if(panel) panel.classList.toggle('active', t===name);
+  });
+}
+
+// ─────────────────────────────────────
+// API Key — stored in Firestore config/vendor
+// ─────────────────────────────────────
+async function loadApiKey(){
+  try{
+    const doc = await db.collection('config').doc('vendor').get();
+    if(doc.exists && doc.data().spoonityApiKey){
+      apiKey = doc.data().spoonityApiKey;
+      gv('setting-api-key').value = apiKey;
+      // Pre-load spending rules silently
+      await fetchSpendingRules();
+    }
+  }catch(e){ /* not fatal */ }
+}
+
+async function saveApiKey(){
+  const key = gv('setting-api-key').value.trim();
+  if(!key){ showKeyStatus('Ingresa una API key válida.', false); return; }
+  try{
+    await db.collection('config').doc('vendor').set({ spoonityApiKey: key }, { merge: true });
+    apiKey = key;
+    showKeyStatus('API key guardada correctamente.', true);
+    await testApiKey();
+  }catch(e){ showKeyStatus('Error al guardar: '+e.message, false); }
+}
+
+async function testApiKey(){
+  const key = gv('setting-api-key').value.trim() || apiKey;
+  if(!key){ showKeyStatus('Primero guarda una API key.', false); return; }
+  showKeyStatus('Probando conexión…', null);
+  try{
+    await fetchSpendingRules(key);
+    showKeyStatus(`✓ Conexión exitosa — ${spendingRules.length} spending rules cargados.`, true);
+    renderSrPreview();
+  }catch(e){ showKeyStatus('Error: '+e.message, false); }
+}
+
+function showKeyStatus(msg, ok){
+  const el = gv('key-status');
+  el.textContent = msg;
+  el.className = 'key-status ' + (ok===true?'ok':ok===false?'err':'');
+  el.style.display = 'block';
+}
+
+function renderSrPreview(){
+  const wrap = gv('settings-preview');
+  const list = gv('sr-preview-list');
+  if(!spendingRules.length){ wrap.style.display='none'; return; }
+  wrap.style.display = 'block';
+  list.innerHTML = spendingRules.map(r =>
+    `<div class="sr-preview-item">${esc(r.name)}<span>#${r.id}</span></div>`
+  ).join('');
+}
+
+// ─────────────────────────────────────
+// Spending rules — fetch from Spoonity API
+// ─────────────────────────────────────
+async function fetchSpendingRules(key){
+  const k = key || apiKey;
+  if(!k) return;
+  const res = await fetch(`https://api.spoonity.com/vendor/perk/redemption/list?api_key=${encodeURIComponent(k)}`);
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  // Normalize — API may return array at root or inside a key
+  const raw = Array.isArray(data) ? data : (data.redemptions || data.perks || data.data || data.spending_rules || []);
+  spendingRules = raw.map(r => ({
+    id:          r.vendor_perk_redemption_id || r.id,
+    name:        r.name || r.title || `Rule #${r.id}`,
+    description: r.description || '',
+    cost:        r.cost || r.points_cost || null,
+  }));
+}
+
+function populateSrSelect(selectId, currentId){
+  const sel = gv(selectId);
+  if(!sel) return;
+  if(!spendingRules.length){
+    sel.innerHTML = '<option value="">— Sin spending rules (configura la API key en Ajustes) —</option>';
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  sel.innerHTML = '<option value="">— Ninguno —</option>' +
+    spendingRules.map(r =>
+      `<option value="${r.id}" ${String(r.id)===String(currentId)?'selected':''}>${esc(r.name)}${r.cost?' · '+r.cost+' pts':''}</option>`
+    ).join('');
+}
+
+function showSrCard(selectId, cardId, nameId, descId){
+  const sel = gv(selectId);
+  const card = gv(cardId);
+  if(!sel||!card) return;
+  const found = spendingRules.find(r => String(r.id)===sel.value);
+  if(found){
+    gv(nameId).textContent = found.name + (found.cost ? ` · ${found.cost} pts` : '');
+    gv(descId).textContent = found.description || '';
+    card.style.display = 'block';
+  } else {
+    card.style.display = 'none';
+  }
+}
+
+function onBannerSrChange(){ showSrCard('f-spending-rule','banner-sr-card','banner-sr-name','banner-sr-desc'); }
+function onPromoSrChange(){ showSrCard('pf-spending-rule','promo-sr-card','promo-sr-name','promo-sr-desc'); }
+
+// ─────────────────────────────────────
+// Banners — Firestore listener
+// ─────────────────────────────────────
+function listenBanners(){
+  db.collection('promos').orderBy('order')
+    .onSnapshot(snap => {
+      banners = snap.docs.map(d => ({id:d.id,...d.data()}));
+      renderBannerList();
+      gv('tab-count-banners').textContent = banners.length;
+    }, () => {
+      db.collection('promos').onSnapshot(snap => {
+        banners = snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));
+        renderBannerList();
+        gv('tab-count-banners').textContent = banners.length;
+      });
+    });
+}
+
+function renderBannerList(){
+  const list = gv('banner-list');
+  if(!banners.length){
+    list.innerHTML = '<div class="empty-state">No hay banners todavía.<br>Agrega el primero con el botón de arriba.</div>';
+    return;
+  }
+  list.innerHTML = banners.map((b,i) => `
+    <div class="banner-item">
+      <div class="banner-swatch">
+        <div class="banner-swatch-bg" style="background:${esc(b.bg)};${b.image?`background-image:url('${esc(b.image)}');background-size:cover`:''}"></div>
+        <div class="banner-swatch-text" style="color:${esc(b.fg||'#fff')}">${esc(b.title||'')}</div>
+      </div>
+      <div class="banner-info">
+        <div class="banner-eyebrow">${esc(b.eyebrow||'—')}</div>
+        <div class="banner-title-text">${esc(b.title||'Sin título')}</div>
+        <div class="banner-meta">
+          ${b.url?`<span class="meta-chip url">🔗 URL</span>`:''}
+          ${b.awardCode?`<span class="meta-chip promo">🏷️ ${esc(b.awardCode.slice(0,12))}…</span>`:''}
+        </div>
+      </div>
+      <div class="banner-actions">
+        <button class="btn-icon" title="Subir" onclick="moveBanner(${i},-1)" ${i===0?'disabled style="opacity:.3"':''}>↑</button>
+        <button class="btn-icon" title="Bajar" onclick="moveBanner(${i},1)" ${i===banners.length-1?'disabled style="opacity:.3"':''}>↓</button>
+        <button class="btn-icon" title="Editar" onclick="openBannerModal('${b.id}')">✏️</button>
+        <button class="btn-icon danger" title="Eliminar" onclick="deleteBanner('${b.id}','${esc(b.title||'')}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+async function moveBanner(i, dir){
+  const j = i+dir;
+  if(j<0||j>=banners.length) return;
+  const a=banners[i], b=banners[j];
+  const batch = db.batch();
+  batch.update(db.collection('promos').doc(a.id),{order:b.order??j});
+  batch.update(db.collection('promos').doc(b.id),{order:a.order??i});
+  await batch.commit();
+}
+
+async function deleteBanner(id, title){
+  if(!confirm(`¿Eliminar el banner "${title}"?`)) return;
+  await db.collection('promos').doc(id).delete();
+}
+
+// ─────────────────────────────────────
+// Banner modal
+// ─────────────────────────────────────
+function openBannerModal(id){
+  editingBannerId = id;
+  const b = id ? banners.find(x=>x.id===id) : null;
+  gv('modal-title').textContent = b ? 'Editar banner' : 'Agregar banner';
+  set('f-eyebrow',   b?.eyebrow   || '');
+  set('f-title',     b?.title     || '');
+  set('f-sub',       b?.sub       || '');
+  set('f-cta',       b?.cta       || '');
+  set('f-url',       b?.url       || '');
+  set('f-bg',        b?.bg        || 'linear-gradient(120deg,#1581C5,#3BA0DF)');
+  set('f-fg',        b?.fg        || '#ffffff');
+  set('f-ctaColor',  b?.ctaColor  || '#FFDE17');
+  set('f-image',     b?.image     || '');
+  set('f-award-code', b?.awardCode || '');
+  // Spending rule selector
+  const srField = gv('banner-sr-field');
+  if(val('f-award-code')||b?.awardCode) srField.style.display='block';
+  else srField.style.display='none';
+  populateSrSelect('f-spending-rule', b?.spendingRuleId || '');
+  showSrCard('f-spending-rule','banner-sr-card','banner-sr-name','banner-sr-desc');
+  // Show spending rule field when award code is typed
+  gv('f-award-code').oninput = function(){ updateBannerPreview(); gv('banner-sr-field').style.display=this.value.trim()?'block':'none'; };
+  syncBgPicker();
+  trySetColorPicker('f-fg-picker', val('f-fg'));
+  trySetColorPicker('f-ctaColor-picker', val('f-ctaColor'));
+  updateBannerPreview();
+  gv('modal-overlay').classList.add('open');
+}
+
+function closeBannerModal(){ gv('modal-overlay').classList.remove('open'); editingBannerId=null; }
+
+async function saveBanner(){
+  const title = val('f-title');
+  if(!title){ alert('El título es obligatorio.'); return; }
+  const btn = gv('btn-banner-save');
+  btn.disabled = true;
+  const data = {
+    eyebrow:   val('f-eyebrow'),
+    title,
+    sub:       val('f-sub'),
+    cta:       val('f-cta'),
+    url:       val('f-url'),
+    bg:        val('f-bg') || '#1581C5',
+    fg:        val('f-fg') || '#ffffff',
+    ctaColor:  val('f-ctaColor') || '#FFDE17',
+    image:     val('f-image'),
+    awardCode:       val('f-award-code'),
+    spendingRuleId:  gv('f-spending-rule')?.value || '',
+    spendingRuleName: spendingRules.find(r=>String(r.id)===gv('f-spending-rule')?.value)?.name || '',
+    blob:            'rgba(255,255,255,.12)',
+  };
+  try{
+    if(editingBannerId){
+      await db.collection('promos').doc(editingBannerId).update(data);
+    } else {
+      const maxOrder = banners.length ? Math.max(...banners.map(b=>b.order??0)) : -1;
+      await db.collection('promos').add({...data, order:maxOrder+1});
+    }
+    closeBannerModal();
+  }catch(e){ alert('Error al guardar: '+e.message); }
+  btn.disabled = false;
+}
+
+function updateBannerPreview(){
+  const card = gv('preview-card');
+  const bg   = val('f-bg') || '#1581C5';
+  const fg   = val('f-fg') || '#ffffff';
+  const cta  = val('f-cta');
+  const ctaColor = val('f-ctaColor') || '#FFDE17';
+  const img  = val('f-image');
+  const awardCode = val('f-award-code');
+  card.style.background = bg;
+  card.style.color = fg;
+  card.style.backgroundImage = img ? `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.6)),url(${img})` : '';
+  if(img){ card.style.backgroundSize='cover'; card.style.backgroundPosition='center'; }
+  gv('preview-eyebrow').textContent = val('f-eyebrow');
+  gv('preview-title').textContent   = val('f-title') || 'Título del banner';
+  gv('preview-sub').textContent     = val('f-sub');
+  const ctaEl = gv('preview-cta');
+  if(cta){ ctaEl.style.display='inline-block'; ctaEl.textContent=cta; ctaEl.style.background=ctaColor; ctaEl.style.color=isBright(ctaColor)?'#17181A':'#fff'; }
+  else { ctaEl.style.display='none'; }
+  const noteEl = gv('preview-award-note');
+  if(awardCode){ noteEl.style.display='block'; gv('preview-award-code-text').textContent=awardCode; }
+  else { noteEl.style.display='none'; }
+}
+
+// ─────────────────────────────────────
+// Promos — Firestore listener
+// ─────────────────────────────────────
+function listenPromos(){
+  db.collection('award_promos').orderBy('createdAt','desc')
+    .onSnapshot(snap => {
+      promos = snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderPromoList();
+      gv('tab-count-promos').textContent = promos.length;
+    }, () => {
+      db.collection('award_promos').onSnapshot(snap => {
+        promos = snap.docs.map(d=>({id:d.id,...d.data()}));
+        renderPromoList();
+        gv('tab-count-promos').textContent = promos.length;
+      });
+    });
+}
+
+function renderPromoList(){
+  const list = gv('promo-list');
+  if(!promos.length){
+    list.innerHTML = '<div class="empty-state">No hay links promocionales todavía.<br>Agrega el primero con el botón de arriba.</div>';
+    return;
+  }
+  list.innerHTML = promos.map(p => {
+    const active = p.active !== false;
+    const expiry = p.expiresAt ? new Date(p.expiresAt).toLocaleDateString('es-EC',{day:'2-digit',month:'short',year:'numeric'}) : null;
+    const promoUrl = `${APP_DOMAIN}?redeem=${encodeURIComponent(p.code||'')}`;
+    return `<div class="promo-item">
+      <div class="promo-thumb">${p.image?`<img src="${esc(p.image)}" alt="">`:''}
+        <span style="position:relative;z-index:1">${esc(p.emoji||'🏷️')}</span>
+      </div>
+      <div class="promo-info">
+        <div class="promo-code-badge">${esc(p.code||'sin código')}</div>
+        <div class="promo-title-text">${esc(p.title||'Sin título')}</div>
+        <div class="promo-expiry">${expiry?`Expira: ${expiry}`:'Sin expiración'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none">
+        <div class="status-pill ${active?'active':'inactive'}">
+          <div class="status-dot"></div>
+          ${active?'Activa':'Inactiva'}
+        </div>
+        <button class="btn-copy" onclick="copyText('${esc(promoUrl)}',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copiar link
+        </button>
+      </div>
+      <div class="banner-actions">
+        <button class="btn-icon" title="Editar" onclick="openPromoModal('${p.id}')">✏️</button>
+        <button class="btn-icon danger" title="Eliminar" onclick="deletePromo('${p.id}','${esc(p.title||'')}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function deletePromo(id, title){
+  if(!confirm(`¿Eliminar la promoción "${title}"?`)) return;
+  await db.collection('award_promos').doc(id).delete();
+}
+
+// ─────────────────────────────────────
+// Promo modal
+// ─────────────────────────────────────
+function openPromoModal(id){
+  editingPromoId = id;
+  const p = id ? promos.find(x=>x.id===id) : null;
+  gv('promo-modal-title').textContent = p ? 'Editar link promocional' : 'Nuevo link promocional';
+  set('pf-code',    p?.code    || '');
+  set('pf-title',   p?.title   || '');
+  set('pf-desc',    p?.description || '');
+  set('pf-image',   p?.image   || '');
+  set('pf-emoji',   p?.emoji   || '🎾');
+  set('pf-cta',     p?.cta     || 'Iniciar sesión para activar');
+  set('pf-expires', p?.expiresAt ? p.expiresAt.split('T')[0] : '');
+  gv('pf-active').checked = p?.active !== false;
+  populateSrSelect('pf-spending-rule', p?.spendingRuleId || '');
+  showSrCard('pf-spending-rule','promo-sr-card','promo-sr-name','promo-sr-desc');
+  updatePromoPreview();
+  updateUrlDisplay();
+  gv('promo-modal-overlay').classList.add('open');
+}
+
+function closePromoModal(){ gv('promo-modal-overlay').classList.remove('open'); editingPromoId=null; }
+
+async function savePromo(){
+  const code  = val('pf-code');
+  const title = val('pf-title');
+  if(!code)  { alert('El código de promoción es obligatorio.'); return; }
+  if(!title) { alert('El título es obligatorio.'); return; }
+  const btn = gv('btn-promo-save');
+  btn.disabled = true;
+  const data = {
+    code,
+    title,
+    description: val('pf-desc'),
+    image:       val('pf-image'),
+    emoji:       val('pf-emoji') || '🎾',
+    cta:         val('pf-cta') || 'Iniciar sesión para activar',
+    expiresAt:        val('pf-expires') || null,
+    active:           gv('pf-active').checked,
+    spendingRuleId:   gv('pf-spending-rule')?.value || '',
+    spendingRuleName: spendingRules.find(r=>String(r.id)===gv('pf-spending-rule')?.value)?.name || '',
+    spendingRuleDesc: spendingRules.find(r=>String(r.id)===gv('pf-spending-rule')?.value)?.description || '',
+  };
+  try{
+    if(editingPromoId){
+      await db.collection('award_promos').doc(editingPromoId).update(data);
+    } else {
+      await db.collection('award_promos').add({...data, createdAt: new Date().toISOString()});
+    }
+    closePromoModal();
+  }catch(e){ alert('Error al guardar: '+e.message); }
+  btn.disabled = false;
+}
+
+function updatePromoPreview(){
+  const title = val('pf-title') || 'Título de la promoción';
+  const desc  = val('pf-desc')  || 'Descripción de la promoción aparecerá aquí.';
+  const emoji = val('pf-emoji') || '🎾';
+  const img   = val('pf-image');
+  const cta   = val('pf-cta')  || 'Iniciar sesión para activar';
+  const exp   = val('pf-expires');
+  const active = gv('pf-active').checked;
+
+  gv('ap-title').textContent = title;
+  gv('ap-desc').textContent  = desc;
+  gv('ap-btn').textContent   = cta;
+  gv('ap-emoji').textContent = emoji;
+
+  const imgEl = gv('ap-img');
+  const existingImg = imgEl.querySelector('img');
+  if(img){
+    if(!existingImg){ const i=document.createElement('img'); i.alt=''; imgEl.prepend(i); }
+    imgEl.querySelector('img').src = img;
+  } else {
+    if(existingImg) existingImg.remove();
+  }
+
+  const meta = gv('ap-meta');
+  const chips = [];
+  if(exp) chips.push(`<span class="award-meta-chip">📅 Hasta ${new Date(exp).toLocaleDateString('es-EC',{day:'2-digit',month:'short'})}</span>`);
+  if(!active) chips.push(`<span class="award-meta-chip" style="background:#FEE2E2;color:#991B1B">⏸ Inactiva</span>`);
+  meta.innerHTML = chips.join('');
+}
+
+function updateUrlDisplay(){
+  const code = val('pf-code');
+  const box  = gv('promo-url-box');
+  const disp = gv('promo-url-display');
+  if(code){
+    box.style.display = 'block';
+    disp.textContent = `${APP_DOMAIN}?redeem=${encodeURIComponent(code)}`;
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+function copyPromoUrl(){
+  const url = gv('promo-url-display').textContent;
+  copyText(url, gv('btn-copy-url'));
+}
+
+function copyText(text, btn){
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig = btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+    setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML=orig; },2000);
+  });
+}
+
+// ─────────────────────────────────────
+// Shared helpers
+// ─────────────────────────────────────
+function syncBgPicker(){
+  const v = val('f-bg');
+  if(/^#[0-9a-fA-F]{3,6}$/.test(v)) gv('f-bg-picker').value = v;
+}
+function trySetColorPicker(id, hex){
+  if(/^#[0-9a-fA-F]{3,6}$/.test(hex)) gv(id).value = hex;
+}
+function isBright(hex){
+  const c=hex.replace('#','');
+  if(c.length<6) return false;
+  const r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);
+  return (r*299+g*587+b*114)/1000>128;
+}
+function show(id){
+  ['scr-login','scr-unauth','scr-app'].forEach(s=>{
+    const el=gv(s);
+    el.style.display = s===id ? (s==='scr-app'?'flex':'flex') : 'none';
+  });
+}
+function gv(id){ return document.getElementById(id); }
+function val(id){ const el=gv(id); return el?(el.value||'').trim():''; }
+function set(id, v){ const el=gv(id); if(el) el.value=v||''; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+gv('modal-overlay').addEventListener('click', e=>{ if(e.target===gv('modal-overlay')) closeBannerModal(); });
+gv('promo-modal-overlay').addEventListener('click', e=>{ if(e.target===gv('promo-modal-overlay')) closePromoModal(); });
+</script>
+</body>
+</html>
