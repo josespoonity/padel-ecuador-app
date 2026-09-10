@@ -1295,7 +1295,7 @@ const CONFIG = {
 /* ---------- Feature flags ---------- */
 /* Set to false to hide a feature without deleting its code. */
 const FEATURES = {
-  wallet: false    // ← change to true to re-enable Wallet buttons and modal
+  wallet: true
 };
 
 const LS_SESSION = 'padelEC_session';   // stores { session_key, email, fn, ln, member } — no cedula: it's never read back, only used transiently to derive `member`
@@ -2756,22 +2756,31 @@ async function openLegal(type){
 }
 function closeLegal(){$('legal-bg').classList.remove('open')}
 
-// Wallet enrollment: a single universal link (Spoonity's passkit service detects
-// Apple/Google automatically) — not an API call, just open the URL.
-//   https://spoonity-passkit.onrender.com/enroll/{enrollmentId}?v={vendor}
-// ⚠️ TODO: confirm where `enrollmentId` comes from for a given socio (a field on
-// Not per-socio: it's a fixed enrollment landing page for this vendor's wallet
-// campaign. The socio fills in their own name/email there and the pass is
-// emailed to them — our app just opens the link, nothing to fetch first.
-const WALLET_ENROLL_URL = 'https://spoonity-passkit.onrender.com/enroll/43011DTdmHUXdITJovRAgA?v=2112777';
-function addToWallet(){
+const WALLET_PROGRAM_ID = 'b5e0f727-73f6-4abb-84ac-907e399894c4';
+async function addToWallet(){
   if(!SESSION)return;
-  // Defense in depth: only ever open our own passkit domain, even though the URL above is a fixed constant.
-  let host = '';
-  try{ host = new URL(WALLET_ENROLL_URL).hostname; }catch(_){ /* falls through to the check below */ }
-  if(!/(^|\.)onrender\.com$/.test(host)) return toast('URL de Wallet no reconocida.');
-  window.open(WALLET_ENROLL_URL, '_blank', 'noopener,noreferrer');
-  closeWallet();
+  const btn = document.querySelector('#wallet-bg .wallet-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Conectando…'; }
+  try{
+    const res = await fetch('https://wallet-api.spoonity.com/enroll/app-session',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        programId: WALLET_PROGRAM_ID,
+        spoonitySessionKey: SESSION.session_key,
+        consentGiven: true
+      })
+    });
+    if(!res.ok){ const e=await res.json().catch(()=>{}); throw new Error(e?.message||res.status); }
+    const {sessionUrl} = await res.json();
+    closeWallet();
+    window.open(sessionUrl,'_blank','noopener,noreferrer');
+  }catch(e){
+    toast('No se pudo conectar con Wallet. Intenta de nuevo.');
+    console.error('addToWallet',e);
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='Añadir a Wallet'; }
+  }
 }
 
 /* ============================================================
