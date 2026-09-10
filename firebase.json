@@ -15,7 +15,7 @@
           { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
           {
             "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.spoonity.com https://wallet-api.spoonity.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com; frame-src https://accounts.google.com https://padel-ecuador-d4842.firebaseapp.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.spoonity.com https://wallet-api.spoonity.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://www.gstatic.com; frame-src https://accounts.google.com https://padel-ecuador-d4842.firebaseapp.com; object-src 'none'; base-uri 'none'; form-action https://wallet-api.spoonity.com; frame-ancestors 'none'"
           }
         ]
       },
