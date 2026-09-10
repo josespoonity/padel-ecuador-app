@@ -2759,10 +2759,15 @@ function closeLegal(){$('legal-bg').classList.remove('open')}
 const WALLET_PROGRAM_ID = 'b5e0f727-73f6-4abb-84ac-907e399894c4';
 const WALLET_API_BASE   = 'https://wallet-api.spoonity.com';
 
-function _walletAndroidForm(){
+// All platforms: form POST to /enroll/app-session/go with target="_blank".
+// No fetch, no CORS — the browser follows the server redirect natively.
+function addToWallet(){
+  if(!SESSION) return;
+  closeWallet();
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = WALLET_API_BASE + '/enroll/app-session/go';
+  form.target = '_blank';
   form.style.display = 'none';
   const field = (n,v) => { const i=document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; form.appendChild(i); };
   field('programId', WALLET_PROGRAM_ID);
@@ -2770,40 +2775,7 @@ function _walletAndroidForm(){
   field('consentGiven', 'true');
   document.body.appendChild(form);
   form.submit();
-}
-
-async function addToWallet(){
-  if(!SESSION) return;
-  // Android: use a form POST to /enroll/app-session/go — avoids CORS and the
-  // popup-blocker rule (the browser follows the form redirect natively).
-  if(/Android/i.test(navigator.userAgent)){ closeWallet(); return _walletAndroidForm(); }
-  // iOS / desktop: open the loading tab synchronously while the click gesture is
-  // still alive — iOS blocks window.open() that happens after an await.
-  const passWindow = window.open('wallet-loading.html', '_blank');
-  const btn = document.querySelector('#wallet-bg .wallet-btn');
-  if(btn){ btn.disabled=true; btn.textContent='Conectando…'; }
-  try{
-    const res = await fetch(WALLET_API_BASE + '/enroll/app-session',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ programId:WALLET_PROGRAM_ID, spoonitySessionKey:SESSION.session_key, consentGiven:true })
-    });
-    const payload = await res.json().catch(()=>({}));
-    if(!res.ok || !payload.sessionUrl){
-      if(passWindow) passWindow.close();
-      toast('No se pudo conectar con Wallet. Intenta de nuevo.');
-      return;
-    }
-    closeWallet();
-    if(passWindow) passWindow.location = payload.sessionUrl;
-    else window.location.href = payload.sessionUrl;
-  }catch(e){
-    if(passWindow) passWindow.close();
-    toast('No se pudo conectar con Wallet. Intenta de nuevo.');
-    console.error('addToWallet', e);
-  }finally{
-    if(btn){ btn.disabled=false; btn.textContent='Añadir a Wallet'; }
-  }
+  document.body.removeChild(form);
 }
 
 /* ============================================================
