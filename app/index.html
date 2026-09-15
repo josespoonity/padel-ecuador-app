@@ -2759,15 +2759,17 @@ function closeLegal(){$('legal-bg').classList.remove('open')}
 const WALLET_PROGRAM_ID = 'b5e0f727-73f6-4abb-84ac-907e399894c4';
 const WALLET_API_BASE   = 'https://wallet-api.spoonity.com';
 
-// All platforms: form POST to /enroll/app-session/go with target="_blank".
-// No fetch, no CORS — the browser follows the server redirect natively.
+// Form POST to /enroll/app-session/go — server-side redirect, no CORS.
+// Android/Chrome: navigate current tab (Google Pay requires same-tab context).
+// iOS/desktop: open new tab so user stays in the app.
 function addToWallet(){
   if(!SESSION) return;
   closeWallet();
+  const isAndroid = /Android/i.test(navigator.userAgent);
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = WALLET_API_BASE + '/enroll/app-session/go';
-  form.target = '_blank';
+  if(!isAndroid) form.target = '_blank';
   form.style.display = 'none';
   const field = (n,v) => { const i=document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; form.appendChild(i); };
   field('programId', WALLET_PROGRAM_ID);
