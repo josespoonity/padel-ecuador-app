@@ -2278,10 +2278,24 @@ async function refresh(animate){
   render(animate);
   // Authoritative name source (/user/profile) — corrects the header/sidebar/avatar
   // if SESSION.fn/ln were stale or came from a thin /user/authenticate response.
-  loadProfile();
-  // Special-reward animations: only when available > 0 and newly so
-  if(VM.birthdayAvailable>0 && prevState.birthday===0){ fireBirthday(); }
-  else if(VM.welcomeAvailable>0 && prevState.welcome===0){ confettiBurst(true); toast('🎁 ¡Tienes tu premio de bienvenida!'); }
+  loadProfile().then(()=>{
+    // Birthday confetti: only on the actual birthday and only once per day.
+    if(VM.birthdayAvailable>0 && prevState.birthday===0){
+      const u=(PROFILE&&PROFILE.user)||{};
+      const bdate=u.birthdate;
+      if(bdate){
+        const bd=new Date(bdate*1000), hoy=new Date();
+        const esCumple = bd.getUTCMonth()===hoy.getMonth() && bd.getUTCDate()===hoy.getDate();
+        const lsKey='padelEC_bday_shown_'+(SESSION&&SESSION.member||'')+'_'+hoy.toDateString();
+        if(esCumple && !localStorage.getItem(lsKey)){
+          localStorage.setItem(lsKey,'1');
+          fireBirthday();
+        }
+      }
+    }
+  });
+  // Welcome confetti: only when newly available
+  if(VM.welcomeAvailable>0 && prevState.welcome===0){ confettiBurst(true); toast('🎁 ¡Tienes tu premio de bienvenida!'); }
   prevState = { welcome:VM.welcomeAvailable, birthday:VM.birthdayAvailable };
 }
 
